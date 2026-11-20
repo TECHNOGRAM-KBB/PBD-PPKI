@@ -5,7 +5,7 @@
 /* ===== URL WEB APP GOOGLE APPS SCRIPT =====
    Tampal URL Web App (berakhir dengan /exec) DI ANTARA tanda petikan " " di bawah.
    Boleh tampal URL biasa (https://script.google.com/...) — TIDAK perlu atob / tukar kod. */
-var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxg8wFRCcu_EkiED93PQTtSiSU33zUbMBqD19HNaWB6x-4aNPLBlXugVTPL5kxOLtXUDQ/exec";
+var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwJw9IWZ84X0hhG7_RI2cYALsRGsgkiE1d-EuPGgfWJpxHwiA2mmRBpaBjqrF6arXa1/exec";
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -805,10 +805,12 @@ async function load(){
     if(j.locked){ if(shown) syncing(false); Boot.hide(); showPaywall(j.langganan, j.guru); return; }
     setData(j.data);
   }catch(e){
-    if(shown){ syncing(false); toast('Mod luar talian: memaparkan data simpanan terakhir.', true); return; }
+    const isNet = !navigator.onLine || /fetch|network|load failed/i.test(String(e&&e.message||''));
+    const msg = isNet ? 'Mod luar talian: memaparkan data simpanan terakhir.' : ('Gagal segerak pelayan: ' + (e&&e.message||e));
+    if(shown){ syncing(false); toast(msg, true); return; }
     const c = S.token && readCache();
-    if(c){ S.data=c; toast('Mod luar talian: memaparkan data simpanan terakhir.', true); }
-    else return showFatal(/fetch|network|load failed/i.test(e.message) ? 'Pelayan e-PBD PPKI tidak dapat dihubungi.' : e.message);
+    if(c){ S.data=c; toast(msg, true); }
+    else return showFatal(isNet ? 'Pelayan e-PBD PPKI tidak dapat dihubungi.' : (e&&e.message||String(e)));
   }
   if(shown){
     syncing(false);
@@ -822,7 +824,7 @@ async function load(){
 }
 /* Panggilan pelayan dengan had masa: jika Apps Script lambat / tergantung, cuba sekali lagi
    kemudian papar ralat — skrin loading tidak lagi tersekat selama-lamanya. */
-const POST_TIMEOUT = 45000;
+const POST_TIMEOUT = 60000;
 async function post1(body, ms){
   const ac = ('AbortController' in window) ? new AbortController() : null;
   const t = ac ? setTimeout(()=>ac.abort(), ms) : 0;
@@ -1220,9 +1222,15 @@ function injectTrialBanner(){
   const el = $('#expStrip');
   if(expTimer){ clearInterval(expTimer); expTimer = null; }
   if(!el) return;
-  if(isDemoMode() || !S.data || !S.data.langganan || !S.data.langganan.TARIKH_TAMAT){
+  if(isDemoMode() || !S.data){
     el.style.display = 'none';
     el.innerHTML = '';
+    return;
+  }
+  if(!S.data.langganan || !S.data.langganan.TARIKH_TAMAT){
+    el.className = 'exp-strip warn';
+    el.innerHTML = `<div class="exp-l">⚠ <b>Data tempoh akaun belum disegerak.</b> <span>Pastikan <b>code.gs</b> terkini telah di-Deploy sebagai <b>New version</b>.</span></div><div><button type="button" class="btn sm exp-act" onclick="showLoading();load()">⟳ Segerak Semula</button></div>`;
+    el.style.display = 'flex';
     return;
   }
   const L = S.data.langganan;

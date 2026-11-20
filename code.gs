@@ -278,7 +278,7 @@ function migrasi_() {
   if (p.getProperty('MIGRASI_TAHAP_V8') !== 'SIAP') { migrasiTahap(); p.setProperty('MIGRASI_TAHAP_V8', 'SIAP'); }
   if (p.getProperty('MIGRASI_MENENGAH_V12') !== 'SIAP') { migrasiMenengah(); p.setProperty('MIGRASI_MENENGAH_V12', 'SIAP'); }
   if (p.getProperty('MIGRASI_LANGGANAN_V16') !== 'SIAP') { migrasiLangganan_(); p.setProperty('MIGRASI_LANGGANAN_V16', 'SIAP'); }
-  if (p.getProperty('MIGRASI_DEMO_V19') !== 'SIAP') { sediaDemoLengkap_(); p.setProperty('MIGRASI_DEMO_V19', 'SIAP'); }
+  // Sekolah contoh SK001 & SM001 dijana secara pantas apabila dibuka (elak timeout semasa log masuk)
 }
 /* v7: cipta set mata pelajaran & tafsiran TP seragam ("SEMUA") dari data SK BENUT.
  * Boleh dijalankan secara manual; tidak berbuat apa-apa jika set SEMUA sudah wujud. */
@@ -491,6 +491,8 @@ function senaraiSekolah_() {
     if (nm) map[key].NAMA = String(nm);
   };
   reg(KOD_ASAL, 'RENDAH', '');
+  reg(KOD_DEMO_SR, 'RENDAH', 'SK CONTOH PPKI MALAYSIA');
+  reg(KOD_DEMO_SM, 'MENENGAH', 'SMK CONTOH PPKI MALAYSIA');
   readTable_(SH.TETAPAN).forEach(r => reg(r.KOD_SEKOLAH, 'RENDAH', String(r.KUNCI).trim() === 'NAMA_SEKOLAH' ? r.NILAI : ''));
   if (ss_().getSheetByName(SH_SM.TETAPAN)) {
     readTable_(SH_SM.TETAPAN).forEach(r => reg(r.KOD_SEKOLAH, 'MENENGAH', String(r.KUNCI).trim() === 'NAMA_SEKOLAH' ? r.NILAI : ''));
@@ -603,10 +605,22 @@ function pastiLangganan_(kod, peringkat) {
   return readTable_(SH.LANGGANAN).find(r => sama_(r.KOD_SEKOLAH, kod));
 }
 function migrasiLangganan_() {
-  langgananSheet_();
+  const sh = langgananSheet_();
   bayaranSheet_();
-  senaraiSekolah_().forEach(x => pastiLangganan_(x.KOD, x.PERINGKAT));
-  log_('MIGRASI', 'Sheet 00_LANGGANAN & 00_BAYARAN dicipta (percubaan percuma 7 hari)');
+  const sedia = {};
+  readTable_(SH.LANGGANAN).forEach(r => { sedia[String(r.KOD_SEKOLAH || '').trim().toUpperCase()] = true; });
+  const now = new Date(), tamat = tambahHari_(now, TEMPOH_TRIAL_HARI);
+  const hd = headers_(sh), batch = [];
+  senaraiSekolah_().forEach(x => {
+    const k = String(x.KOD || '').trim().toUpperCase();
+    if (!k || k === KOD_GLOBAL || isDemoSekolah_(k) || sedia[k]) return;
+    sedia[k] = true;
+    const o = { KOD_SEKOLAH: k, NAMA_SEKOLAH: x.NAMA || '', PERINGKAT: normPeringkat_(x.PERINGKAT), STATUS: 'TRIAL',
+      TARIKH_DAFTAR: fmtYMD_(now), TARIKH_TAMAT: fmtYMD_(tamat), JUMLAH_BAYARAN: 0, RUJUKAN_TERAKHIR: '', DIKEMASKINI: now };
+    batch.push(hd.map(h => o[h] !== undefined ? o[h] : ''));
+  });
+  if (batch.length) sh.getRange(sh.getLastRow() + 1, 1, batch.length, hd.length).setValues(batch);
+  log_('MIGRASI', 'Sheet 00_LANGGANAN & 00_BAYARAN dicipta (' + batch.length + ' sekolah)');
 }
 function setLanggananRow_(rowIdx, data) {
   const sh = langgananSheet_(), hd = headers_(sh);
@@ -929,17 +943,20 @@ function demoUlasanMP_(namaR, tp, skala) {
   if (tp === 3) return nm + ' mencapai tahap minimum dan boleh menyelesaikan latihan dengan sedikit bimbingan. Di rumah, ulang latihan buku sekolah selama 10 minit.';
   return nm + ' masih memerlukan bimbingan guru untuk mengukuhkan konsep asas. Di rumah, bantu ' + nm + ' mengulang kaji latihan mudah langkah demi langkah.';
 }
-function sediaDemoLengkap_() {
+function sediaDemoLengkap_(hanyaKod) {
+  hanyaKod = hanyaKod ? String(hanyaKod).trim().toUpperCase() : '';
   pastiSheetSM_();
   const ss = ss_();
   const tmplM = ss.getSheetByName(SH.MURID);
   const mh = tmplM ? headers_(tmplM) : ['ID_MURID','BIL','NAMA_MURID','NAMA_RINGKAS','NO_MYKID','JANTINA','ULASAN_GURU_KELAS','AKTIF','CATATAN'];
   const now = new Date();
   const bina = (kod, per, tet, kelasDefs) => {
+    if (hanyaKod && !sama_(hanyaKod, kod)) return;
     const isSM = per === 'MENENGAH';
     if (!readSekolah_(shFor_('TETAPAN', per), kod).length) {
-      const shT = sheet_(shFor_('TETAPAN', per));
-      tet.forEach(([k, v, ket]) => appendObj_(shT, { KUNCI: k, NILAI: v, KETERANGAN: ket, KOD_SEKOLAH: kod }));
+      const shT = sheet_(shFor_('TETAPAN', per)), hdT = headers_(shT);
+      const tRows = tet.map(([k, v, ket]) => { const o = { KUNCI: k, NILAI: v, KETERANGAN: ket, KOD_SEKOLAH: kod }; return hdT.map(h => o[h] !== undefined ? o[h] : ''); });
+      if (tRows.length) shT.getRange(shT.getLastRow() + 1, 1, tRows.length, hdT.length).setValues(tRows);
     }
     if (senaraiKelas_(kod, per).length) return; // kelas contoh sudah wujud — jangan tindih suntingan Master Admin
     const shKls = kelasSheet_(per);
@@ -1196,6 +1213,7 @@ function padamKelas_(id, kod, peringkat) {
 
 function getAll_(kelasId, guru) {
   const kod = guru.KOD_SEKOLAH, p = normPeringkat_(guru.PERINGKAT);
+  if (isDemoSekolah_(kod) && !senaraiKelas_(kod, p).length) sediaDemoLengkap_(kod);
   const k = kelas_(kelasId, kod, true, p);
   const set = settings_(kod, p);
   delete set.ADMIN_PASSWORD;
