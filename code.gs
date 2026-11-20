@@ -75,9 +75,9 @@ const HARGA_TAHUNAN_RM = 30;
 const TEMPOH_TRIAL_HARI = 7;
 const TEMPOH_LANGGANAN_HARI = 365;
 const BANK_INFO = {
-  BANK: 'MAYBANK (Malayan Banking Berhad)',
-  NAMA_AKAUN: 'MUHAMMAD NAIM',
-  NO_AKAUN: '152189087344',
+  BANK: 'BSN (Bank Simpanan Nasional)',
+  NAMA_AKAUN: 'PERSATUAN PENYELARAS PENDIDIKAN KHAS',
+  NO_AKAUN: '0890041100060835',
   JUMLAH_RM: HARGA_TAHUNAN_RM,
   WASAP: WASAP_ADMIN
 };
@@ -723,8 +723,9 @@ function hantarBayaran_(guru, d) {
   const ruj = String(d.NO_RUJUKAN || '').trim().toUpperCase();
   const namaP = String(d.NAMA_PEMBAYAR || guru.NAMA_GURU || '').trim().toUpperCase();
   const tel = String(d.NO_TELEFON || guru.NO_TELEFON || '').trim();
-  if (!bank || BANK_MALAYSIA_SAH.indexOf(bank) < 0) throw new Error('Sila pilih bank perbankan online Malaysia yang sah.');
-  if (ruj.length < 4) throw new Error('Sila masukkan No. Rujukan Transaksi yang sah (sekurang-kurangnya 4 aksara).');
+  if (!bank || BANK_MALAYSIA_SAH.indexOf(bank) < 0) throw new Error('Maklumat bank tidak sah. Sila muat semula halaman.');
+  if (ruj.length < 4) throw new Error('Sila masukkan No. Resit Pembayaran yang sah (sekurang-kurangnya 4 aksara).');
+  if (!d.RESIT_DATA || !/^data:image\//i.test(String(d.RESIT_DATA))) throw new Error('Bukti pembayaran (gambar resit) wajib dimuat naik.');
   if (namaP.length < 3) throw new Error('Nama pembayar wajib diisi.');
   const shB = bayaranSheet_();
   const now = new Date();
@@ -735,7 +736,7 @@ function hantarBayaran_(guru, d) {
     ID_BAYARAN: idBay, TARIKH_MASA: now, KOD_SEKOLAH: kod, NAMA_SEKOLAH: nmSek,
     NAMA_PEMBAYAR: namaP, EMEL_PEMBAYAR: String(guru.EMEL || ''), NO_TELEFON: "'" + tel,
     BANK_MALAYSIA: bank, NO_RUJUKAN: "'" + ruj, JUMLAH_RM: HARGA_TAHUNAN_RM,
-    KAEDAH: 'PERBANKAN ONLINE MALAYSIA', PAUTAN_RESIT: pautanResit,
+    KAEDAH: 'PINDAHAN KE BSN', PAUTAN_RESIT: pautanResit,
     STATUS: 'MENUNGGU', DISAHKAN_OLEH: '', TARIKH_SAH: '', CATATAN: String(d.CATATAN || '').trim()
   });
   const rec = pastiLangganan_(kod, per);
@@ -750,7 +751,7 @@ function hantarBayaran_(guru, d) {
 /* Pilihan FPX Automatik (ToyyibPay): aktif secara automatik jika Master Admin isi Secret Key di apikey!D1 & Category Code di apikey!E1 */
 function ciptaBilFPX_(guru) {
   const cfg = fpxConfig_();
-  if (!cfg.ready) throw new Error('Gerbang FPX automatik belum dikonfigurasi. Sila guna pindahan Perbankan Online Malaysia (Maybank ' + BANK_INFO.NO_AKAUN + ').');
+  if (!cfg.ready) throw new Error('Gerbang FPX automatik belum dikonfigurasi. Sila guna pindahan Perbankan Online Malaysia (BSN ' + BANK_INFO.NO_AKAUN + ').');
   const kod = String(guru.KOD_SEKOLAH || '').trim().toUpperCase();
   const per = normPeringkat_(guru.PERINGKAT);
   const nmSek = namaSekolahDariKod_(kod, per) || kod;
@@ -772,7 +773,7 @@ function ciptaBilFPX_(guru) {
   });
   const j = JSON.parse(r.getContentText() || '[]');
   const billCode = Array.isArray(j) && j[0] && j[0].BillCode ? String(j[0].BillCode) : '';
-  if (!billCode) throw new Error('Gagal mencipta bil FPX. Sila guna pindahan Maybank ' + BANK_INFO.NO_AKAUN + '.');
+  if (!billCode) throw new Error('Gagal mencipta bil FPX. Sila guna pindahan BSN ' + BANK_INFO.NO_AKAUN + '.');
   appendObj_(bayaranSheet_(), {
     ID_BAYARAN: idBay, TARIKH_MASA: now, KOD_SEKOLAH: kod, NAMA_SEKOLAH: nmSek,
     NAMA_PEMBAYAR: String(guru.NAMA_GURU || ''), EMEL_PEMBAYAR: String(guru.EMEL || ''), NO_TELEFON: "'" + String(guru.NO_TELEFON || ''),
