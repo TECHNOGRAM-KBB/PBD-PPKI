@@ -5,7 +5,7 @@
 /* ===== URL WEB APP GOOGLE APPS SCRIPT =====
    Tampal URL Web App (berakhir dengan /exec) DI ANTARA tanda petikan " " di bawah.
    Boleh tampal URL biasa (https://script.google.com/...) — TIDAK perlu atob / tukar kod. */
-var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzS-oZW-DJak018FyQJcTflpVMvv6-XQJx99EWg-eNLkn4cl0-extSshpEXCFpatwy5Mw/exec";
+var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwJw9IWZ84X0hhG7_RI2cYALsRGsgkiE1d-EuPGgfWJpxHwiA2mmRBpaBjqrF6arXa1/exec";
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -784,7 +784,7 @@ let syncN=0;
 function syncing(on){ syncN=Math.max(0,syncN+(on?1:-1)); $('#sync').classList.toggle('show',syncN>0); }
 function showFatal(msg){
   Boot.hide(); const L=$('#loader'); L.style.display='grid';
-  L.innerHTML=`<div class="card" style="max-width:520px;text-align:center"><h2>Tidak dapat sambung</h2><p>${esc(msg)}</p><p class="hint">Sila semak sambungan internet anda dan cuba lagi. Jika masalah berterusan, WhatsApp Master Admin ${WASAP_ADMIN}.</p><div class="row" style="justify-content:center"><button class="btn pri" onclick="location.reload()">Cuba lagi</button>${helpWA()}</div></div>`;
+  L.innerHTML=`<div class="card" style="max-width:540px;text-align:center"><h2>Tidak dapat sambung</h2><p>${esc(msg)}</p><p class="hint">Sila semak sambungan internet anda atau uji status Web App Apps Script di bawah. Jika masalah berterusan, WhatsApp Master Admin ${WASAP_ADMIN}.</p><div class="row" style="justify-content:center"><button class="btn pri" onclick="location.reload()">Cuba lagi</button>${URL_OK()?`<a class="btn sm" style="text-decoration:none" target="_blank" rel="noopener" href="${esc(API_URL)}?action=ping">🔍 Uji Pelayan</a>`:''}${helpWA()}</div></div>`;
 }
 async function load(){
   if(!URL_OK()) return showFatal('URL Web App tidak sah atau kosong. Buka index.html, cari baris var WEB_APP_URL = "..." di bahagian atas dan tampal URL Web App (berakhir /exec) di antara tanda petikan.');
@@ -1322,16 +1322,18 @@ function pickResit(inp){
   const f=inp.files[0]; if(!f) return;
   const st=$('#pay_resit_st'); if(st) st.textContent='⏳ Memproses resit…';
   const rd=new FileReader(); rd.onload=()=>{ const im=new Image(); im.onload=()=>{
-    let maxW=900, out='';
-    for(let k=0;k<6;k++){
+    let maxW=680, q=0.65, out='';
+    for(let k=0;k<10;k++){
       const sc=Math.min(1, maxW/Math.max(im.width,im.height));
       const c=document.createElement('canvas'); c.width=Math.round(im.width*sc); c.height=Math.round(im.height*sc);
       c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-      out=c.toDataURL('image/jpeg', 0.72);
-      if(out.length<=180000) break; maxW=Math.round(maxW*0.75);
+      out=c.toDataURL('image/webp', q);
+      if(!/^data:image\/webp/.test(out) || out.length>45000) out=c.toDataURL('image/jpeg', q);
+      if(out.length<=45000) break; maxW=Math.round(maxW*0.8); q=Math.max(0.35, q-0.06);
     }
+    if(out.length>47000){ $('#pay_RESIT').value=''; if(st) st.textContent='⚠ Gambar terlalu besar, sila hantar resit melalui WhatsApp'; return; }
     $('#pay_RESIT').value=out;
-    if(st) st.textContent='✓ Resit sedia dihantar ('+Math.round(out.length/1024)+' KB)';
+    if(st) st.textContent='✓ Resit sedia disimpan ('+Math.round(out.length/1024)+' KB)';
   }; im.src=rd.result; }; rd.readAsDataURL(f);
 }
 function showPaywall(lang, guru){
@@ -1432,7 +1434,7 @@ V.bayaran = () => {
     <td><b>${esc(b.NAMA_PEMBAYAR)}</b><br><span class="lock">${esc(b.EMEL_PEMBAYAR)} • ${esc(b.NO_TELEFON)}</span></td>
     <td>${esc(b.BANK_MALAYSIA)}<br><code style="font-family:'JetBrains Mono',monospace;font-weight:800">${esc(b.NO_RUJUKAN)}</code></td>
     <td><b>RM ${b.JUMLAH_RM}</b></td>
-    <td>${/^https?:\/\//i.test(b.PAUTAN_RESIT)?`<a class="btn sm" style="text-decoration:none" target="_blank" rel="noopener" href="${esc(b.PAUTAN_RESIT)}">🧾 Lihat</a>`:'<span class="lock">—</span>'}</td>
+    <td>${/^data:image\//i.test(b.PAUTAN_RESIT)?`<button type="button" class="btn sm" onclick="lihatResit('${esc(b.ID_BAYARAN)}')">🧾 Lihat</button>`:(/^https?:\/\//i.test(b.PAUTAN_RESIT)?`<a class="btn sm" style="text-decoration:none" target="_blank" rel="noopener" href="${esc(b.PAUTAN_RESIT)}">🧾 Lihat</a>`:'<span class="lock">—</span>')}</td>
     <td>${stChip(b.STATUS)}</td>
     <td style="white-space:nowrap">${b.STATUS==='MENUNGGU'?`<button class="btn sm pri" onclick="sahBayar('${esc(b.ID_BAYARAN)}',this)">✓ Sahkan & Aktif 1 Thn</button> <button class="btn sm danger" onclick="tolakBayar('${esc(b.ID_BAYARAN)}')">✕</button>`:`<span class="lock">${esc(b.TARIKH_SAH||'Selesai')}</span>`}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Belum ada rekod pembayaran.</td></tr>'}
    </tbody></table></div></div>
@@ -1451,6 +1453,7 @@ V.bayaran = () => {
     </td></tr>`).join('')||'<tr><td colspan="9" class="empty">Tiada rekod sekolah.</td></tr>'}
    </tbody></table></div></div>`;
 };
+function lihatResit(id){ const b=(S.data&&S.data.senaraiBayaran||[]).find(x=>x.ID_BAYARAN===id); if(!b||!b.PAUTAN_RESIT) return; openModal(`<h3 style="margin-top:0">🧾 Resit Bayaran ${esc(b.ID_BAYARAN)}</h3><p class="lock">${esc(b.KOD_SEKOLAH)} • ${esc(b.BANK_MALAYSIA)} • Ruj: <b>${esc(b.NO_RUJUKAN)}</b></p><div style="text-align:center;background:#f4f7fb;padding:10px;border-radius:12px"><img src="${esc(b.PAUTAN_RESIT)}" style="max-width:100%;max-height:65vh;border-radius:8px"></div><div class="row" style="margin-top:14px"><span class="sp"></span><button class="btn pri" onclick="closeModal()">Tutup</button></div>`); }
 function sahBayar(id, btn){ if(confirm('Sahkan bayaran '+id+' dan aktifkan sekolah ini selama 1 TAHUN (365 hari)?')) run(btn, ()=>api('sahkanBayaran',{id}), 'Bayaran disahkan & sekolah diaktifkan 1 tahun ✓'); }
 function tolakBayar(id){ const s=prompt('Sebab penolakan bayaran '+id+' (cth: Rujukan tidak dijumpai dalam penyata Maybank):'); if(s!==null) run(null, ()=>api('tolakBayaran',{id,sebab:s}), 'Bayaran ditolak'); }
 function ubahLang(kod, tindakan, btn){

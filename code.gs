@@ -684,22 +684,11 @@ function statusLangganan_(kod, peringkat) {
     FPX_AUTO: fpxConfig_().ready
   };
 }
-function simpanResitDrive_(idBayaran, kod, dataUrl) {
-  if (!dataUrl || !/^data:image\//i.test(String(dataUrl))) return '';
-  try {
-    const m = String(dataUrl).match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-    if (!m) return '';
-    const mime = m[1], ext = mime.indexOf('png') > -1 ? 'png' : (mime.indexOf('webp') > -1 ? 'webp' : 'jpg');
-    const bytes = Utilities.base64Decode(m[2]);
-    const blob = Utilities.newBlob(bytes, mime, idBayaran + '_' + kod + '.' + ext);
-    const it = DriveApp.getFoldersByName('RESIT_BAYARAN_ePBD');
-    const folder = it.hasNext() ? it.next() : DriveApp.createFolder('RESIT_BAYARAN_ePBD');
-    const file = folder.createFile(blob);
-    try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
-    return file.getUrl();
-  } catch (e) {
-    return '(Resit dihantar — sila semak WhatsApp jika perlu)';
-  }
+function simpanResitSheet_(dataUrl) {
+  const s = String(dataUrl || '').trim();
+  if (!s || !/^data:image\//i.test(s)) return '';
+  if (s.length > 48000) return '(Resit terlalu besar — semak di WhatsApp)';
+  return s;
 }
 function hantarBayaran_(guru, d) {
   d = d || {};
@@ -716,7 +705,7 @@ function hantarBayaran_(guru, d) {
   const now = new Date();
   const idBay = 'PAY-' + Utilities.formatDate(now, Session.getScriptTimeZone(), 'yyyyMMdd') + '-' + String(Math.floor(1000 + Math.random() * 9000));
   const nmSek = namaSekolahDariKod_(kod, per);
-  const pautanResit = d.RESIT_DATA ? simpanResitDrive_(idBay, kod, d.RESIT_DATA) : '';
+  const pautanResit = d.RESIT_DATA ? simpanResitSheet_(d.RESIT_DATA) : '';
   appendObj_(shB, {
     ID_BAYARAN: idBay, TARIKH_MASA: now, KOD_SEKOLAH: kod, NAMA_SEKOLAH: nmSek,
     NAMA_PEMBAYAR: namaP, EMEL_PEMBAYAR: String(guru.EMEL || ''), NO_TELEFON: "'" + tel,
