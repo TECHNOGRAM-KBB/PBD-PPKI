@@ -2,7 +2,7 @@
  * e-PBD PPKI : SISTEM PELAPORAN PENTAKSIRAN BILIK DARJAH (Google Apps Script)
  * ID Google Sheet pangkalan data ditetapkan pada baris ke-5 di bawah.
  */
-const SPREADSHEET_ID = '1OFENKDJoBY5nHOTOWAawB1MeoANc2Zmj6Etnt1JNYUA';
+const SPREADSHEET_ID = '1PufIwFhCJ2xjNNcnZOwyN6VTy1sZdYaKxuexPXrjZrs';
 
 /**
  * =====================================================================
@@ -98,6 +98,10 @@ const SH_SM = {
 };
 const KOD_ASAL = 'JBA6041';          // sekolah rendah asal (SK BENUT)
 const KOD_ASAL_SM = 'KEA5023';       // sekolah menengah contoh (SMK SUNGAI KOB)
+const KOD_DEMO_SR = 'SK001';         // sekolah rendah contoh lengkap (paparan semua pengguna, edit Master Admin sahaja)
+const KOD_DEMO_SM = 'SM001';         // sekolah menengah contoh lengkap (paparan semua pengguna, edit Master Admin sahaja)
+function isDemoSekolah_(kod) { const k = String(kod || '').trim().toUpperCase(); return k === KOD_DEMO_SR || k === KOD_DEMO_SM; }
+function demoPeringkat_(kod) { return String(kod || '').trim().toUpperCase() === KOD_DEMO_SM ? 'MENENGAH' : 'RENDAH'; }
 const GURU_HEADERS = ['KOD_SEKOLAH','NAMA_GURU','EMEL','NO_TELEFON','KATA_LALUAN_HASH','GARAM','TOKEN','STATUS','DIDAFTAR','LOG_MASUK_AKHIR','KATA_LALUAN','PERINGKAT'];
 function normPeringkat_(v) { return /MENENGAH|SMK|^SM$/i.test(String(v || '').trim()) ? 'MENENGAH' : 'RENDAH'; }
 function shFor_(key, peringkat) { return normPeringkat_(peringkat) === 'MENENGAH' ? (SH_SM[key] || SH[key]) : SH[key]; }
@@ -274,6 +278,7 @@ function migrasi_() {
   if (p.getProperty('MIGRASI_TAHAP_V8') !== 'SIAP') { migrasiTahap(); p.setProperty('MIGRASI_TAHAP_V8', 'SIAP'); }
   if (p.getProperty('MIGRASI_MENENGAH_V12') !== 'SIAP') { migrasiMenengah(); p.setProperty('MIGRASI_MENENGAH_V12', 'SIAP'); }
   if (p.getProperty('MIGRASI_LANGGANAN_V16') !== 'SIAP') { migrasiLangganan_(); p.setProperty('MIGRASI_LANGGANAN_V16', 'SIAP'); }
+  if (p.getProperty('MIGRASI_DEMO_V19') !== 'SIAP') { sediaDemoLengkap_(); p.setProperty('MIGRASI_DEMO_V19', 'SIAP'); }
 }
 /* v7: cipta set mata pelajaran & tafsiran TP seragam ("SEMUA") dari data SK BENUT.
  * Boleh dijalankan secara manual; tidak berbuat apa-apa jika set SEMUA sudah wujud. */
@@ -462,7 +467,7 @@ function loginMaster_(pw) {
 }
 function masterGuru_(sekolah, peringkat) {
   let kod = String(sekolah || '').trim().toUpperCase();
-  if (!/^[A-Z]{3}[0-9]{4}$/.test(kod)) kod = KOD_ASAL;
+  if (!/^[A-Z]{3}[0-9]{4}$/.test(kod) && !isDemoSekolah_(kod)) kod = KOD_ASAL;
   let per = peringkat ? normPeringkat_(peringkat) : '';
   if (!per) {
     const sk = senaraiSekolah_().find(x => x.KOD === kod);
@@ -581,7 +586,7 @@ function namaSekolahDariKod_(kod, peringkat) {
 }
 function pastiLangganan_(kod, peringkat) {
   kod = String(kod || '').trim().toUpperCase();
-  if (!kod || kod === KOD_GLOBAL) return null;
+  if (!kod || kod === KOD_GLOBAL || isDemoSekolah_(kod)) return null;
   const p = normPeringkat_(peringkat);
   const sh = langgananSheet_();
   const rows = readTable_(SH.LANGGANAN);
@@ -620,6 +625,14 @@ function fpxConfig_() {
 function statusLangganan_(kod, peringkat) {
   kod = String(kod || '').trim().toUpperCase();
   const p = normPeringkat_(peringkat);
+  if (isDemoSekolah_(kod)) {
+    return {
+      KOD_SEKOLAH: kod, NAMA_SEKOLAH: namaSekolahDariKod_(kod, p) || (kod === KOD_DEMO_SM ? 'SMK CONTOH PPKI MALAYSIA' : 'SK CONTOH PPKI MALAYSIA'),
+      PERINGKAT: p, STATUS: 'DEMO', TARIKH_DAFTAR: '', TARIKH_TAMAT: '2099-12-31',
+      BAKI_HARI: 9999, TAMAT_LEPAS: false, LOCKED: false, HARGA_RM: HARGA_TAHUNAN_RM,
+      ADA_MENUNGGU: false, BAYARAN_MENUNGGU: null, BANK: BANK_INFO, FPX_AUTO: false
+    };
+  }
   const rec = pastiLangganan_(kod, p);
   const now = new Date();
   const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
@@ -858,7 +871,7 @@ function senaraiLangganan_() {
   langgananSheet_();
   const now = new Date();
   const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-  return readTable_(SH.LANGGANAN).map(r => {
+  return readTable_(SH.LANGGANAN).filter(r => !isDemoSekolah_(r.KOD_SEKOLAH)).map(r => {
     const td = parseYMD_(r.TARIKH_TAMAT);
     const baki = td ? Math.floor((td.getTime() - todayMid.getTime()) / 86400000) : 0;
     const st = String(r.STATUS || 'TRIAL').toUpperCase();
@@ -897,6 +910,129 @@ function senaraiBayaran_() {
     TARIKH_SAH: String(b.TARIKH_SAH || ''),
     CATATAN: String(b.CATATAN || '')
   }));
+}
+
+/* ====================== SEKOLAH CONTOH LENGKAP (SK001 & SM001) ======================
+ * Dicipta automatik sekali sahaja jika SK001 atau SM001 belum wujud dalam Google Sheet.
+ * Boleh juga dijalankan secara manual dari editor Apps Script.
+ * Setiap contoh mempunyai 3 kelas berlainan tahap x 2 murid lengkap markah & ulasan. */
+function demoUlasanMP_(namaR, tp, skala) {
+  const n = String(namaR || 'Murid');
+  const nm = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
+  if (skala === 3) {
+    if (tp === 3) return nm + ' dapat mengaplikasikan kemahiran asas dengan yakin dan konsisten. Di rumah, teruskan latihan rutin harian bersama keluarga.';
+    if (tp === 2) return nm + ' semakin maju dan menguasai perkara asas dengan bimbingan guru. Di rumah, ulang latihan ringkas 10 minit langkah demi langkah.';
+    return nm + ' masih memerlukan bimbingan penuh guru untuk memberi respons asas. Di rumah, bimbing ' + nm + ' menggunakan bahan maujud secara berperingkat.';
+  }
+  if (tp >= 5) return nm + ' menunjukkan penguasaan yang sangat baik dan berdikari menyiapkan tugasan. Di rumah, galakkan latihan pengayaan menggunakan buku kerja.';
+  if (tp === 4) return nm + ' sudah menguasai kemahiran asas dengan baik secara berdikari. Di rumah, minta ' + nm + ' menerangkan semula apa yang dipelajari.';
+  if (tp === 3) return nm + ' mencapai tahap minimum dan boleh menyelesaikan latihan dengan sedikit bimbingan. Di rumah, ulang latihan buku sekolah selama 10 minit.';
+  return nm + ' masih memerlukan bimbingan guru untuk mengukuhkan konsep asas. Di rumah, bantu ' + nm + ' mengulang kaji latihan mudah langkah demi langkah.';
+}
+function sediaDemoLengkap_() {
+  pastiSheetSM_();
+  const ss = ss_();
+  const tmplM = ss.getSheetByName(SH.MURID);
+  const mh = tmplM ? headers_(tmplM) : ['ID_MURID','BIL','NAMA_MURID','NAMA_RINGKAS','NO_MYKID','JANTINA','ULASAN_GURU_KELAS','AKTIF','CATATAN'];
+  const now = new Date();
+  const bina = (kod, per, tet, kelasDefs) => {
+    const isSM = per === 'MENENGAH';
+    if (!readSekolah_(shFor_('TETAPAN', per), kod).length) {
+      const shT = sheet_(shFor_('TETAPAN', per));
+      tet.forEach(([k, v, ket]) => appendObj_(shT, { KUNCI: k, NILAI: v, KETERANGAN: ket, KOD_SEKOLAH: kod }));
+    }
+    if (senaraiKelas_(kod, per).length) return; // kelas contoh sudah wujud — jangan tindih suntingan Master Admin
+    const shKls = kelasSheet_(per);
+    const hdrBg = isSM ? '#14213d' : '#0f5257';
+    kelasDefs.forEach(kd => {
+      const shM = ss.getSheetByName(kd.shM) || ss.insertSheet(kd.shM);
+      const shK = ss.getSheetByName(kd.shK) || ss.insertSheet(kd.shK);
+      if (shM.getLastRow() < 1) { shM.getRange(1, 1, 1, mh.length).setValues([mh]).setFontWeight('bold').setBackground(hdrBg).setFontColor('#ffffff'); shM.setFrozenRows(1); }
+      if (shK.getLastRow() < 1) { shK.getRange(1, 1, 1, MARKAH_HEADERS.length).setValues([MARKAH_HEADERS]).setFontWeight('bold').setBackground(hdrBg).setFontColor('#ffffff'); shK.setFrozenRows(1); }
+      if (shM.getLastRow() < 2) {
+        const mRows = kd.stus.map(s => {
+          const o = { ID_MURID: s.id, BIL: s.bil, NAMA_MURID: s.nm, NAMA_RINGKAS: s.nr, NO_MYKID: "'" + s.ic, JANTINA: s.g, ULASAN_GURU_KELAS: s.ul, AKTIF: 'YA', CATATAN: 'Contoh Murid' };
+          return mh.map(h => o[h] !== undefined ? o[h] : '');
+        });
+        shM.getRange(2, 1, mRows.length, mh.length).setValues(mRows);
+      }
+      if (shK.getLastRow() < 2) {
+        const mps = mpSekolah_(kod, kd.tahap, per).filter(m => String(m.AKTIF).toUpperCase() === 'Y' && String(m.KOD_MP).toUpperCase() !== 'PM');
+        const skala = (isSM && kd.tahap === 'KR') ? 3 : 6;
+        const kRows = [];
+        kd.stus.forEach((s, si) => {
+          mps.forEach((mp, mi) => {
+            const cs = String(mp[KOMP_KEY] || '').split('|').map(x => x.trim()).filter(Boolean);
+            const nc = Math.min(12, Math.max(1, cs.length));
+            const off = [0, 1, 0, -1, 1, 0, 0, 1, -1, 0, 1, 0];
+            const base = skala === 3 ? (mi % 3 === 2 ? Math.max(1, s.tier - 1) : s.tier) : Math.max(1, Math.min(6, s.tier + off[(mi + si) % off.length]));
+            const ks = []; let sum = 0;
+            for (let j = 0; j < 12; j++) {
+              if (j < nc) {
+                const kv = skala === 3 ? Math.max(1, Math.min(3, base)) : Math.max(1, Math.min(6, base + (j % 2 === 0 ? 0 : (si === 0 ? 1 : -1))));
+                ks.push(kv); sum += kv;
+              } else ks.push('');
+            }
+            const tpAll = Math.max(1, Math.min(skala, Math.round(sum / nc)));
+            kRows.push([s.id, mp.KOD_MP].concat(ks, [tpAll, demoUlasanMP_(s.nr, tpAll, skala), '2026-11-20']));
+          });
+        });
+        if (kRows.length) shK.getRange(2, 1, kRows.length, MARKAH_HEADERS.length).setValues(kRows);
+      }
+      appendObj_(shKls, { ID_KELAS: kd.id, SESI: '2026', TAHUN: kd.tahun, NAMA_KELAS: kd.nama, NAMA_GURU_KELAS: kd.guru, SHEET_MURID: kd.shM, SHEET_MARKAH: kd.shK, STATUS: 'AKTIF', DICIPTA: now, KOD_SEKOLAH: kod, TAHAP: kd.tahap });
+    });
+  };
+  bina(KOD_DEMO_SR, 'RENDAH', [
+    ['NAMA_SEKOLAH','SK CONTOH PPKI MALAYSIA','Sekolah Rendah Contoh'],
+    ['ALAMAT_SEKOLAH','JALAN PENDIDIKAN KHAS, 09800 SERDANG','Alamat 1'],
+    ['ALAMAT_SEKOLAH_2','KEDAH DARUL AMAN','Alamat 2'],
+    ['PELAPORAN','PENTAKSIRAN AKHIR TAHUN','Pelaporan'],
+    ['TARIKH_PELAPORAN','2026-11-20','Tarikh pelaporan'],
+    ['NAMA_GURU_BESAR','EN. AHMAD FAUZI BIN ABDULLAH','Nama Guru Besar'],
+    ['JAWATAN_PENTADBIR','GURU BESAR','Jawatan pentadbir'],
+    ['JENIS_SEKOLAH','SEK KEB (SK)','Jenis sekolah'],
+    ['BAHASA_LAPORAN','SK','Bahasa laporan'],
+    ['TAJUK_SIJIL','SIJIL PENTAKSIRAN BILIK DARJAH (KSSRPK)','Tajuk sijil']
+  ], [
+    { id: 'SK001_2026_1_TERATAI', tahun: '1', nama: 'TERATAI', tahap: '1', guru: 'PN. NORHAYATI BINTI HASSAN', shM: 'MURID SK001 2026 1 TERATAI', shK: 'MARKAH SK001 2026 1 TERATAI', stus: [
+      { id: 'M001', bil: 1, nm: 'MUHAMMAD RAYYAN DANISH BIN HAKIM', nr: 'RAYYAN', ic: '190412-02-0511', g: 'L', tier: 5, ul: 'Rayyan seorang murid yang sangat berdikari, ceria dan mudah mengikut arahan guru. Pencapaian keseluruhan amat membanggakan dan boleh menjadi contoh kepada rakan sekelas.' },
+      { id: 'M002', bil: 2, nm: 'NUR AISYAH HUMAIRA BINTI ZULKIFLI', nr: 'AISYAH', ic: '190825-02-0842', g: 'P', tier: 3, ul: 'Aisyah menunjukkan minat belajar yang baik serta semakin yakin berinteraksi. Latihan membaca dan mengira secara ringkas di rumah akan membantu meningkatkan penguasaannya.' }
+    ]},
+    { id: 'SK001_2026_3_KENANGA', tahun: '3', nama: 'KENANGA', tahap: '1', guru: 'EN. HAFIZUDDIN BIN RAMLI', shM: 'MURID SK001 2026 3 KENANGA', shK: 'MARKAH SK001 2026 3 KENANGA', stus: [
+      { id: 'M001', bil: 1, nm: 'ADAM MIKAIL BIN SHAHRUL', nr: 'ADAM', ic: '170318-02-0329', g: 'L', tier: 5, ul: 'Adam menunjukkan prestasi cemerlang dalam hampir semua mata pelajaran dan sangat aktif dalam aktiviti kumpulan. Teruskan usaha gigih ini.' },
+      { id: 'M002', bil: 2, nm: 'SITI NUR QALESYA BINTI AZIZ', nr: 'QALESYA', ic: '171104-02-0614', g: 'P', tier: 2, ul: 'Qalesya rajin mencuba tugasan baharu namun masih memerlukan bimbingan berterusan guru. Kerjasama ibu bapa untuk ulang kaji asas di rumah amat dihargai.' }
+    ]},
+    { id: 'SK001_2026_5_IXORA', tahun: '5', nama: 'IXORA', tahap: '2', guru: 'PN. FARIDAH BINTI ISMAIL', shM: 'MURID SK001 2026 5 IXORA', shK: 'MARKAH SK001 2026 5 IXORA', stus: [
+      { id: 'M001', bil: 1, nm: 'MUHAMMAD DARWISY IMAN BIN ROSLI', nr: 'DARWISY', ic: '150609-02-0477', g: 'L', tier: 5, ul: 'Darwisy menguasai kemahiran akademik dan kemahiran hidup dengan sangat baik serta konsisten. Beliau juga ringan tulang membantu rakan-rakan di bengkel.' },
+      { id: 'M002', bil: 2, nm: 'NURUL IMANINA BINTI KAMARUL', nr: 'IMANINA', ic: '150922-02-0928', g: 'P', tier: 3, ul: 'Imanina menunjukkan peningkatan positif dari segi pengurusan diri dan komunikasi. Teruskan bimbingan berperingkat bagi mengukuhkan kemahiran asas.' }
+    ]}
+  ]);
+  bina(KOD_DEMO_SM, 'MENENGAH', [
+    ['NAMA_SEKOLAH','SMK CONTOH PPKI MALAYSIA','Sekolah Menengah Contoh'],
+    ['ALAMAT_SEKOLAH','JALAN WAWASAN PPKI, 09700 KARANGAN','Alamat 1'],
+    ['ALAMAT_SEKOLAH_2','KEDAH DARUL AMAN','Alamat 2'],
+    ['PELAPORAN','PENTAKSIRAN AKHIR TAHUN','Pelaporan'],
+    ['TARIKH_PELAPORAN','2026-11-20','Tarikh pelaporan'],
+    ['NAMA_GURU_BESAR','TN. HJ. MOHD ZAKI BIN SULAIMAN','Nama Pengetua'],
+    ['JAWATAN_PENTADBIR','PENGETUA','Jawatan pentadbir'],
+    ['JENIS_SEKOLAH','SEK MEN KEB (SMK) PPKI','Jenis sekolah'],
+    ['BAHASA_LAPORAN','SK','Bahasa laporan'],
+    ['TAJUK_SIJIL','SIJIL PENTAKSIRAN BILIK DARJAH (KSSMPK)','Tajuk sijil']
+  ], [
+    { id: 'SM001_2026_KR_BESTARI', tahun: 'Kefungsian Rendah', nama: 'KR BESTARI', tahap: 'KR', guru: 'PN. ZURAINI BINTI MANSOR', shM: 'SM_MURID SM001 2026 KR BESTARI', shK: 'SM_MARKAH SM001 2026 KR BESTARI', stus: [
+      { id: 'M001', bil: 1, nm: 'MUHAMMAD HAZIQ IRFAN BIN OTHMAN', nr: 'HAZIQ', ic: '110514-02-0413', g: 'L', tier: 3, ul: 'Haziq menunjukkan perkembangan yang amat memberangsangkan dalam pengurusan diri dan komunikasi harian. Beliau sentiasa berdisiplin serta memberi kerjasama baik.' },
+      { id: 'M002', bil: 2, nm: 'NURUL SYAFIQAH BINTI YUSOF', nr: 'SYAFIQAH', ic: '110927-02-0786', g: 'P', tier: 2, ul: 'Syafiqah menunjukkan usaha yang baik dalam aktiviti kelas dan semakin selesa bergaul dengan rakan. Bimbingan rutin di rumah amat membantu peningkatan keyakinan diri.' }
+    ]},
+    { id: 'SM001_2026_1_ANGGERIK', tahun: 'Tingkatan 1', nama: '1 ANGGERIK', tahap: 'T1', guru: 'EN. FAIZAL BIN RAHMAN', shM: 'SM_MURID SM001 2026 1 ANGGERIK', shK: 'SM_MARKAH SM001 2026 1 ANGGERIK', stus: [
+      { id: 'M001', bil: 1, nm: 'AMIRUL HAKIM BIN ZAINAL', nr: 'AMIRUL', ic: '130219-02-0535', g: 'L', tier: 5, ul: 'Amirul menunjukkan pencapaian cemerlang dan konsisten dalam semua mata pelajaran KSSMPK Tingkatan 1. Tahniah atas komitmen dan disiplin yang tinggi.' },
+      { id: 'M002', bil: 2, nm: 'PUTERI BALQIS BINTI NASIR', nr: 'BALQIS', ic: '130711-02-0864', g: 'P', tier: 3, ul: 'Balqis menunjukkan sikap positif semasa PdP dan mencapai tahap minimum dalam kebanyakan subjek. Latihan ulang kaji ringkas di rumah amat digalakkan.' }
+    ]},
+    { id: 'SM001_2026_3_MAWAR', tahun: 'Tingkatan 3', nama: '3 MAWAR', tahap: 'T3', guru: 'PN. SHARIFAH BINTI ALI', shM: 'SM_MURID SM001 2026 3 MAWAR', shK: 'SM_MARKAH SM001 2026 3 MAWAR', stus: [
+      { id: 'M001', bil: 1, nm: 'MUHAMMAD DANIAL ASYRAF BIN RAZAK', nr: 'DANIAL', ic: '110128-02-0291', g: 'L', tier: 5, ul: 'Danial seorang murid berdedikasi, matang dan berdikari dalam menyiapkan tugasan akademik serta amali. Berpotensi tinggi untuk melangkah ke kemahiran vokasional.' },
+      { id: 'M002', bil: 2, nm: 'NUR ALIA NATASYA BINTI HAMID', nr: 'ALIA', ic: '111015-02-0652', g: 'P', tier: 2, ul: 'Alia berusaha mengikuti pembelajaran dengan baik namun masih memerlukan bimbingan guru dalam subjek teras. Sokongan berterusan ibu bapa amat bermakna.' }
+    ]}
+  ]);
+  log_('MIGRASI', 'Sekolah contoh lengkap SK001 & SM001 (3 kelas x 2 murid) disediakan');
 }
 
 /* ---------- GET ---------- */
@@ -1084,6 +1220,8 @@ function getAll_(kelasId, guru) {
     bahasa: readCached_(SH.BAHASA),
     panduan: readCached_(SH.PANDUAN),
     langganan: statusLangganan_(kod, p),
+    isDemo: isDemoSekolah_(kod),
+    readOnly: !!(guru._readOnly || (isDemoSekolah_(kod) && !guru._master)),
     serverTime: new Date().toISOString()
   };
   if (guru._master) { o.senaraiSekolah = senaraiSekolah_(); o.akaun = senaraiAkaun_(); o.senaraiLangganan = senaraiLangganan_(); o.senaraiBayaran = senaraiBayaran_(); }
@@ -1155,9 +1293,19 @@ function doPost(e) {
     if (a === 'semakLangganan') return out_({ ok: true, locked: stLang.LOCKED, guru: awamGuru_(guru), langganan: stLang, data: stLang.LOCKED ? null : getAll_(body.kelas, guru) });
     if (a === 'hantarBayaran') { const rB = hantarBayaran_(guru, body.data); return out_({ ok: true, result: rB, langganan: rB.langganan, locked: rB.langganan.LOCKED, data: rB.langganan.LOCKED ? null : getAll_(body.kelas, guru) }); }
     if (a === 'ciptaBilFPX') { return out_({ ok: true, result: ciptaBilFPX_(guru) }); }
+    const demoKod = isDemoSekolah_(body.demo) ? String(body.demo).trim().toUpperCase() : '';
     if (a === 'getAll') {
+      if (demoKod && !guru._master) {
+        const viewGuru = Object.assign({}, guru, { KOD_SEKOLAH: demoKod, PERINGKAT: demoPeringkat_(demoKod), _readOnly: true, _isDemo: true });
+        const dDemo = getAll_(body.kelas, viewGuru);
+        dDemo.guruAsal = awamGuru_(guru);
+        return out_({ ok: true, data: dDemo });
+      }
       if (stLang.LOCKED) return out_({ ok: true, locked: true, guru: awamGuru_(guru), langganan: stLang });
       return out_({ ok: true, data: getAll_(body.kelas, guru) });
+    }
+    if (!guru._master && (demoKod || isDemoSekolah_(kod))) {
+      throw new Error('Mod Contoh (' + (demoKod || kod) + ') adalah paparan sahaja. Hanya Master Admin boleh mengubah maklumat contoh ini.');
     }
     if (stLang.LOCKED) throw new Error('Akses kod sekolah ' + kod + ' dikunci kerana tempoh percubaan/langganan telah tamat. Sila jelaskan bayaran RM30/tahun untuk membuka semula akses.');
     let res; let kid = body.kelas; let tokenBaru = null;

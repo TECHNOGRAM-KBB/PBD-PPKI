@@ -5,7 +5,7 @@
 /* ===== URL WEB APP GOOGLE APPS SCRIPT =====
    Tampal URL Web App (berakhir dengan /exec) DI ANTARA tanda petikan " " di bawah.
    Boleh tampal URL biasa (https://script.google.com/...) — TIDAK perlu atob / tukar kod. */
-var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwKm6TepyLCWMjftmSuPpRZVxy8fGWh2y9XdSX1Lc2YIJKMPlpO89yYl8_3nE4JzMHnjg/exec";
+var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwJw9IWZ84X0hhG7_RI2cYALsRGsgkiE1d-EuPGgfWJpxHwiA2mmRBpaBjqrF6arXa1/exec";
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -374,6 +374,16 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 @media(max-width:640px){.bank-box .bk-grid,.pay-steps{grid-template-columns:1fr}}
 @media print{.trial-bar{display:none!important}}
 
+
+/* ---------- Mod Contoh Lengkap (SK001 / SM001) ---------- */
+.demo-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;margin-bottom:16px;border-radius:14px;background:linear-gradient(135deg,#0f2942,#164e63);border:1.5px solid #38bdf8;color:#e0f7ff;box-shadow:0 10px 24px -12px rgba(14,116,144,.6)}
+.demo-bar b{color:#fde68a}
+.demo-bar.master{background:linear-gradient(135deg,#3b2606,#6b440a);border-color:#f59e0b}
+.demo-box{margin-top:10px;padding-top:10px;border-top:1px dashed rgba(15,82,87,.22)}
+.demo-box .dm-t{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin-bottom:6px}
+.demo-box .dm-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media print{.demo-bar{display:none!important}}
+
 #printArea{display:none}
 @media print{
   body{background:#fff}
@@ -730,7 +740,7 @@ addEventListener('resize', () => Boot.resize());
 Boot.show();
 
 /* ====================== STATE ====================== */
-const S = { data:null, view:'dash', emel:localStorage.getItem('pbd_emel')||'', token:localStorage.getItem('pbd_token')||'', kelas:localStorage.getItem('pbd_kelas')||'', sekolah:localStorage.getItem('pbd_sekolah')||'', peringkat:localStorage.getItem('pbd_peringkat')||'', mpSel:null, stuSel:null, subSel:'ALL', subEdit:{}, charts:[] };
+const S = { data:null, view:'dash', emel:localStorage.getItem('pbd_emel')||'', token:localStorage.getItem('pbd_token')||'', kelas:localStorage.getItem('pbd_kelas')||'', sekolah:localStorage.getItem('pbd_sekolah')||'', peringkat:localStorage.getItem('pbd_peringkat')||'', demo:sessionStorage.getItem('pbd_demo')||'', mpSel:null, stuSel:null, subSel:'ALL', subEdit:{}, charts:[] };
 try{ sessionStorage.removeItem('pbd_pw'); localStorage.removeItem('pbd_cache'); }catch(e){} // bersihkan data versi lama
 const NAV = [
   ['dash','◎','Papan Pemuka'],['akaun','🛡','Akaun Pengguna'],['bayaran','💳','Langganan & Bayaran'],['kelas','🗓','Kelas & Tahun'],['murid','👥','Senarai Murid'],['markah','✎','Rekod Prestasi'],
@@ -740,7 +750,10 @@ const NAV = [
 ];
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const isAdmin = () => !!S.token;
+const isLoggedIn = () => !!S.token;
+const isDemoMode = () => !!(S.data && S.data.isDemo);
+const isReadOnly = () => !!(S.data && S.data.readOnly);
+const isAdmin = () => !!S.token && !isReadOnly();
 /* ---------- MASTER ADMIN & BANTUAN ---------- */
 const MASTER_EMEL = 'MASTER_ADMIN';
 const WASAP_ADMIN = '01110661077';
@@ -772,8 +785,8 @@ async function load(){
   const before = shown ? sig(S.data) : '';
   if(shown) syncing(true);
   try{
-    let j = await post({action:'getAll',emel:S.emel,token:S.token,kelas:S.kelas,sekolah:S.sekolah,peringkat:S.peringkat});
-    if(!j.ok && S.kelas && /tidak dijumpai/i.test(j.error)){ S.kelas=''; j = await post({action:'getAll',emel:S.emel,token:S.token,kelas:'',sekolah:S.sekolah,peringkat:S.peringkat}); }
+    let j = await post({action:'getAll',emel:S.emel,token:S.token,kelas:S.kelas,sekolah:S.sekolah,peringkat:S.peringkat,demo:S.demo});
+    if(!j.ok && S.kelas && /tidak dijumpai/i.test(j.error)){ S.kelas=''; j = await post({action:'getAll',emel:S.emel,token:S.token,kelas:'',sekolah:S.sekolah,peringkat:S.peringkat,demo:S.demo}); }
     if(!j.ok && /sesi tamat|log masuk/i.test(j.error)){ if(shown) syncing(false); Boot.hide(); logout(); toast(j.error,true); return; }
     if(!j.ok) throw new Error(j.error);
     if(j.locked){ if(shown) syncing(false); Boot.hide(); showPaywall(j.langganan, j.guru); return; }
@@ -819,11 +832,12 @@ async function post(body){
     throw e;
   }
 }
-const cacheKey = k => 'pbd_cache_'+S.emel+'_'+(S.peringkat||'')+'_'+(S.sekolah||'')+'_'+(k||'');
+const cacheKey = k => 'pbd_cache_'+S.emel+'_'+(S.demo||'')+'_'+(S.peringkat||'')+'_'+(S.sekolah||'')+'_'+(k||'');
 async function api(action, payload={}){
-  if(!isAdmin()){ askLogin(); throw new Error('Perlu log masuk'); }
+  if(!isLoggedIn()){ askLogin(); throw new Error('Perlu log masuk'); }
+  if(isReadOnly()){ throw new Error('Mod Contoh adalah paparan sahaja. Hanya Master Admin boleh mengedit data contoh.'); }
   syncing(true); let j;
-  try{ j = await post({action,emel:S.emel,token:S.token,kelas:S.kelas,sekolah:S.sekolah,peringkat:S.peringkat,...payload}); } finally { syncing(false); }
+  try{ j = await post({action,emel:S.emel,token:S.token,kelas:S.kelas,sekolah:S.sekolah,peringkat:S.peringkat,demo:S.demo,...payload}); } finally { syncing(false); }
   if(!j.ok){ if(/sesi tamat/i.test(j.error)){ logout(); } throw new Error(j.error); }
   if(j.token){ S.token=j.token; localStorage.setItem('pbd_token',j.token); }
   if(j.data) setData(j.data);
@@ -968,7 +982,7 @@ async function doAuth(mode, btn){
 function logout(){
   try{ Object.keys(localStorage).filter(k=>k.startsWith('pbd_cache')).forEach(k=>localStorage.removeItem(k)); }catch(e){}
   if(S.emel===MASTER_EMEL){ S.emel=''; localStorage.removeItem('pbd_emel'); }
-  S.token=''; S.data=null; S.kelas=''; S.sekolah=''; S.peringkat=''; localStorage.removeItem('pbd_token'); localStorage.removeItem('pbd_kelas'); localStorage.removeItem('pbd_sekolah'); localStorage.removeItem('pbd_peringkat');
+  S.token=''; S.data=null; S.kelas=''; S.sekolah=''; S.peringkat=''; S.demo=''; sessionStorage.removeItem('pbd_demo'); localStorage.removeItem('pbd_token'); localStorage.removeItem('pbd_kelas'); localStorage.removeItem('pbd_sekolah'); localStorage.removeItem('pbd_peringkat');
   showAuth('login');
 }
 function openModal(h){ $('#modalBox').innerHTML=h; $('#modal').classList.add('show'); }
@@ -1028,10 +1042,11 @@ function render(){
   S.charts.forEach(c=>c.destroy()); S.charts=[];
   $('#nav').innerHTML = NAV.filter(([k])=>(k!=='akaun'&&k!=='bayaran')||isMaster()).map(([k,i,l])=>`<button class="${S.view===k?'on':''}" onclick="go('${k}')"><span class="ico">${i}</span>${l}</button>`).join('');
   $('#who').innerHTML = `<span class="chip" style="margin-bottom:6px;font-size:11px">${isMenengah()?'🏫 Sekolah Menengah (KSSMPK)':'🏫 Sekolah Rendah (KSSRPK)'}</span><div style="opacity:.75">${esc(T().NAMA_SEKOLAH||'Belum diisi')}</div><div style="font-weight:800;margin:4px 0 0">Kelas ${esc(T().KELAS||'—')} • ${esc(T().SESI)} • ${esc(tahapLabel(tahapAktif()))}</div>${kelasPicker()}${isArkib()?`<span class="chip gold" style="margin-bottom:8px">📜 Rekod sejarah ${esc(T().SESI)}</span><br>`:''}`+
-    (isMaster()?`<span class="chip gold">🛡 MASTER ADMIN</span><div style="opacity:.75;font-size:12px;margin-top:8px">Lihat data sekolah:</div>${sekolahPicker()}<button class="btn sm" onclick="logout()">Log keluar</button>`
-    :isAdmin()?`<span class="chip gold">👤 ${esc((S.data.guru&&S.data.guru.NAMA_GURU)||S.emel)}</span><div style="opacity:.75;font-size:12px;margin-top:4px">Kod sekolah: <b>${esc(T().KOD_SEKOLAH||'')}</b></div>${langgananBadgeSide()}<button class="btn sm" style="margin-top:10px" onclick="logout()">Log keluar</button><div style="margin-top:10px">${helpWA('💬 Bantuan (WhatsApp)')}</div>`
+    (isMaster()?`<span class="chip gold">🛡 MASTER ADMIN</span><div style="opacity:.75;font-size:12px;margin-top:8px">Lihat / Edit data sekolah:</div>${sekolahPicker()}<div class="demo-box"><div class="dm-t">⭐ Edit Sekolah Contoh</div><div class="dm-btns"><button class="btn sm ${T().KOD_SEKOLAH==='SK001'?'pri':''}" onclick="switchSekolah('SK001','RENDAH').then(()=>go('dash'))">SK001</button><button class="btn sm ${T().KOD_SEKOLAH==='SM001'?'pri':''}" onclick="switchSekolah('SM001','MENENGAH').then(()=>go('dash'))">SM001</button></div></div><button class="btn sm" style="margin-top:10px" onclick="logout()">Log keluar</button>`
+    :isLoggedIn()?`<span class="chip gold">👤 ${esc((S.data.guru&&S.data.guru.NAMA_GURU)||S.emel)}</span><div style="opacity:.75;font-size:12px;margin-top:4px">${isDemoMode()?`Sekolah anda: <b>${esc((S.data.guruAsal&&S.data.guruAsal.KOD_SEKOLAH)||'—')}</b><br>Sedang lihat: <b>${esc(T().KOD_SEKOLAH||'')}</b>`:`Kod sekolah: <b>${esc(T().KOD_SEKOLAH||'')}</b>`}</div>${isDemoMode()?'':langgananBadgeSide()}<div class="demo-box"><div class="dm-t">👁 Contoh PBD Lengkap</div>${isDemoMode()?`<button class="btn sm pri" style="width:100%;justify-content:center;margin-bottom:6px" onclick="exitDemo()">← Kembali ke Sekolah Saya</button>`:''}<div class="dm-btns"><button class="btn sm ${S.demo==='SK001'?'gold':''}" onclick="openDemo('SK001')" title="Lihat contoh lengkap Sekolah Rendah (3 kelas x 2 murid)">SR • SK001</button><button class="btn sm ${S.demo==='SM001'?'gold':''}" onclick="openDemo('SM001')" title="Lihat contoh lengkap Sekolah Menengah (3 kelas x 2 murid)">SM • SM001</button></div></div><button class="btn sm" style="margin-top:10px" onclick="logout()">Log keluar</button><div style="margin-top:10px">${helpWA('💬 Bantuan (WhatsApp)')}</div>`
       :`<span class="chip">👁 Mod Paparan</span><br><button class="btn sm" style="margin-top:10px" onclick="askLogin()">🔐 Log masuk</button>`);
   (V[S.view]||V.dash)();
+  injectDemoBanner();
   injectTrialBanner();
   setTimeout(()=>hadir(false),0);
   if(S._lastView!==S.view){ S._lastView=S.view; const v=$('#view'); v.classList.remove('vin'); void v.offsetWidth; v.classList.add('vin'); }
@@ -1066,7 +1081,34 @@ function showHadir(lain){
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) hadir(true); });
 window.addEventListener('pagehide',()=>{ if(S.token) try{ navigator.sendBeacon(API_URL, new Blob([JSON.stringify({action:'hadir',emel:S.emel,token:S.token,sekolah:S.sekolah,sid:HADIR_SID,page:''})],{type:'text/plain;charset=utf-8'})); }catch(e){} });
 const head = (t,p,extra='') => `<div class="top"><div><h1>${t}</h1><p>${p||''}</p></div><div class="row">${extra}</div></div>`;
-const lockNote = () => isAdmin()?'':`<p class="lock">🔒 Paparan sahaja. <a href="#" onclick="askLogin();return false">Log masuk</a> untuk mengedit.</p>`;
+const lockNote = () => isAdmin()?'':(isReadOnly()?`<p class="lock">🔒 <b>Mod Contoh Lengkap (${esc(T().KOD_SEKOLAH)})</b> — Paparan sahaja untuk panduan guru. Hanya Master Admin boleh mengubah data contoh ini.</p>`:`<p class="lock">🔒 Paparan sahaja. <a href="#" onclick="askLogin();return false">Log masuk</a> untuk mengedit.</p>`);
+async function openDemo(kod){
+  kod=String(kod||'').toUpperCase(); if(!kod) return;
+  if(S.demo===kod && S.data && S.data.isDemo) return;
+  S.demo=kod; S.kelas=''; S.stuSel=null; S.mpSel=null; S.subSel='ALL';
+  sessionStorage.setItem('pbd_demo',kod); localStorage.removeItem('pbd_kelas');
+  showLoading(); await load();
+}
+async function exitDemo(){
+  if(!S.demo) return;
+  S.demo=''; S.kelas=''; S.stuSel=null; S.mpSel=null; S.subSel='ALL';
+  sessionStorage.removeItem('pbd_demo'); localStorage.removeItem('pbd_kelas');
+  showLoading(); await load();
+}
+function injectDemoBanner(){
+  if(!isDemoMode()) return;
+  const v=$('#view'); if(!v) return;
+  const bar=document.createElement('div');
+  const kod=T().KOD_SEKOLAH||'';
+  if(isMaster()){
+    bar.className='demo-bar master';
+    bar.innerHTML=`<div>🛠 <b>MOD CONTOH RASMI (${esc(kod)} • ${esc(T().NAMA_SEKOLAH)})</b> — Anda log masuk sebagai <b>Master Admin</b>. Sebarang kemas kini di sini akan terus dilihat oleh semua guru berdaftar di seluruh Malaysia.</div><div class="row" style="gap:6px"><button class="btn sm" onclick="switchSekolah('${kod==='SK001'?'SM001':'SK001'}','${kod==='SK001'?'MENENGAH':'RENDAH'}')">Tukar ke ${kod==='SK001'?'SM001':'SK001'}</button></div>`;
+  } else {
+    bar.className='demo-bar';
+    bar.innerHTML=`<div>👁 <b>MOD CONTOH PBD LENGKAP (${esc(kod)} • ${esc(T().NAMA_SEKOLAH)})</b> — Paparan sahaja (3 kelas berlainan tahap × 2 murid). Anda boleh lihat Papan Pemuka, Rekod Prestasi, Laporan Murid, Spider Chart, Sijil & Analisis.</div><div class="row" style="gap:6px"><button class="btn sm gold" onclick="openDemo('${kod==='SK001'?'SM001':'SK001'}')">Lihat ${kod==='SK001'?'SM001':'SK001'}</button><button class="btn sm pri" onclick="exitDemo()">← Kembali ke Sekolah Saya</button></div>`;
+  }
+  v.insertBefore(bar, v.firstChild);
+}
 
 const V = {};
 /* ---------- Dashboard ---------- */
@@ -1142,7 +1184,7 @@ function langgananBadgeSide(){
   return `<div style="margin-top:8px"><span class="chip gold" style="font-size:11px">⏳ Percubaan: ${L.BAKI_HARI} hari lagi</span><br><button class="btn sm gold" style="margin-top:6px;width:100%;justify-content:center" onclick="openPayModal()">💳 Aktifkan RM30/Thn</button></div>`;
 }
 function injectTrialBanner(){
-  if(isMaster() || !S.data || !S.data.langganan) return;
+  if(isMaster() || isDemoMode() || !S.data || !S.data.langganan) return;
   const L = S.data.langganan;
   if(L.STATUS==='AKTIF' && L.BAKI_HARI>30) return;
   const v = $('#view'); if(!v) return;
@@ -1208,6 +1250,7 @@ function payFormHTML(L, guru, isGate){
     <span class="sp"></span>
     <button type="button" class="btn pri" onclick="hantarBayaran(this,${isGate?'true':'false'})">✓ Hantar Pengesahan Bayaran</button>
    </div>
+   ${isGate?`<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);text-align:center"><div class="lock" style="font-size:12px;margin-bottom:6px">Ingin lihat contoh PBD lengkap dahulu?</div><div class="row" style="justify-content:center;gap:8px"><button type="button" class="btn sm" onclick="openDemo('SK001')">👁 Lihat Contoh Rendah (SK001)</button><button type="button" class="btn sm" onclick="openDemo('SM001')">👁 Lihat Contoh Menengah (SM001)</button></div></div>`:''}
    <div style="margin-top:12px;text-align:center"><a class="lock" style="font-size:12px" target="_blank" rel="noopener" href="${waLink(bk.WASAP, waMsg)}">💬 Perlukan bantuan pembayaran? WhatsApp Admin ${esc(bk.WASAP)}</a></div>`;
 }
 function updateBankLink(){
