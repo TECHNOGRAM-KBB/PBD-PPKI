@@ -5,7 +5,7 @@
 /* ===== URL WEB APP GOOGLE APPS SCRIPT =====
    Tampal URL Web App (berakhir dengan /exec) DI ANTARA tanda petikan " " di bawah.
    Boleh tampal URL biasa (https://script.google.com/...) — TIDAK perlu atob / tukar kod. */
-var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxMoHc7M6JAm2mGLiDf3xeG8f7WCxgcrHq3oaONaaUbRUzLbC5WP9tsXIA2loeJM14dFg/exec";
+var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwJw9IWZ84X0hhG7_RI2cYALsRGsgkiE1d-EuPGgfWJpxHwiA2mmRBpaBjqrF6arXa1/exec";
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -384,6 +384,18 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 .demo-box .dm-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 @media print{.demo-bar{display:none!important}}
 
+
+/* ---------- Jalur Countdown Tamat Akaun (Atas Sekali, Ringkas) ---------- */
+.exp-strip{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:6px 12px;margin-bottom:12px;border-radius:10px;font-size:11.5px;line-height:1.35;background:rgba(220,239,235,.85);border:1px solid rgba(15,82,87,.22);color:#0f5257;backdrop-filter:blur(8px)}
+.exp-strip.warn{background:rgba(254,243,199,.92);border-color:#e6be5a;color:#6b4600}
+.exp-strip.crit{background:rgba(254,226,226,.95);border-color:#f87171;color:#991b1b}
+.exp-strip .exp-l{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.exp-strip .exp-cd{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11px;padding:2px 8px;border-radius:99px;background:rgba(15,82,87,.12);color:inherit;letter-spacing:.03em;white-space:nowrap}
+.exp-strip.warn .exp-cd{background:rgba(180,120,10,.15)}
+.exp-strip.crit .exp-cd{background:rgba(185,28,28,.14)}
+.exp-strip .exp-act{padding:3px 9px;font-size:11px;border-radius:7px}
+@media print{.exp-strip{display:none!important}}
+
 #printArea{display:none}
 @media print{
   body{background:#fff}
@@ -634,6 +646,7 @@ table.t tr:hover td{background:rgba(255,255,255,.7)}
     <div class="who" id="who"></div>
   </aside>
   <main class="main">
+    <div id="expStrip" class="exp-strip" style="display:none"></div>
     <div class="row" style="margin-bottom:10px"><button class="btn sm mob" onclick="side.classList.toggle('open')">☰ Menu</button></div>
     <div id="view"></div>
   </main>
@@ -980,6 +993,7 @@ async function doAuth(mode, btn){
   }
 }
 function logout(){
+  if(expTimer){ clearInterval(expTimer); expTimer=null; } const es=$('#expStrip'); if(es) es.style.display='none';
   try{ Object.keys(localStorage).filter(k=>k.startsWith('pbd_cache')).forEach(k=>localStorage.removeItem(k)); }catch(e){}
   if(S.emel===MASTER_EMEL){ S.emel=''; localStorage.removeItem('pbd_emel'); }
   S.token=''; S.data=null; S.kelas=''; S.sekolah=''; S.peringkat=''; S.demo=''; sessionStorage.removeItem('pbd_demo'); localStorage.removeItem('pbd_token'); localStorage.removeItem('pbd_kelas'); localStorage.removeItem('pbd_sekolah'); localStorage.removeItem('pbd_peringkat');
@@ -1183,21 +1197,60 @@ function langgananBadgeSide(){
   if(L.STATUS==='AKTIF') return `<div style="margin-top:8px"><span class="chip" style="font-size:11px">✓ Langganan Aktif (${L.BAKI_HARI} hari)</span></div>`;
   return `<div style="margin-top:8px"><span class="chip gold" style="font-size:11px">⏳ Percubaan: ${L.BAKI_HARI} hari lagi</span><br><button class="btn sm gold" style="margin-top:6px;width:100%;justify-content:center" onclick="openPayModal()">💳 Aktifkan RM30/Thn</button></div>`;
 }
+let expTimer = null;
+function parseEndOfDay(ymd){
+  const m = String(ymd||'').trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return new Date(Number(m[1]), Number(m[2])-1, Number(m[3]), 23, 59, 59);
+  const d = new Date(ymd);
+  return isNaN(d.getTime()) ? null : d;
+}
+function fmtCountdown(endDt){
+  if(!endDt) return '—';
+  const diff = endDt.getTime() - Date.now();
+  if(diff <= 0) return 'TAMAT TEMPOH';
+  const s = Math.floor(diff / 1000);
+  const h = Math.floor(s / 86400);
+  const j = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sc = s % 60;
+  const p2 = n => String(n).padStart(2, '0');
+  return `${h}h ${p2(j)}j ${p2(m)}m ${p2(sc)}s`;
+}
 function injectTrialBanner(){
-  if(isMaster() || isDemoMode() || !S.data || !S.data.langganan) return;
-  const L = S.data.langganan;
-  if(L.STATUS==='AKTIF' && L.BAKI_HARI>30) return;
-  const v = $('#view'); if(!v) return;
-  const bar = document.createElement('div');
-  bar.className = 'trial-bar';
-  if(L.ADA_MENUNGGU){
-    bar.innerHTML = `<div>⏳ <b>Bukti bayaran sekolah ${esc(L.KOD_SEKOLAH)} telah dihantar</b> (Ruj: <b>${esc(L.BAYARAN_MENUNGGU.NO_RUJUKAN)}</b>). Menunggu pengesahan Master Admin.</div><button class="btn sm" onclick="semakAktif(this)">🔄 Semak Status</button>`;
-  } else if(L.STATUS==='AKTIF'){
-    bar.innerHTML = `<div>ℹ Langganan tahunan sekolah <b>${esc(L.KOD_SEKOLAH)}</b> akan tamat dalam <b>${L.BAKI_HARI} hari</b> (${fmtDate(L.TARIKH_TAMAT)}).</div><button class="btn sm gold" onclick="openPayModal()">💳 Perbaharui RM30/Tahun</button>`;
-  } else {
-    bar.innerHTML = `<div>⏳ <b>Percubaan Percuma 7 Hari (${esc(L.KOD_SEKOLAH)}):</b> Baki <b>${L.BAKI_HARI} hari</b> (tamat ${fmtDate(L.TARIKH_TAMAT)}). Selepas tamat, kod sekolah akan dikunci. Sekali bayar <b>RM30/tahun</b> untuk semua guru sekolah ini!</div><button class="btn sm gold" onclick="openPayModal()">💳 Bayar RM30/Tahun</button>`;
+  const el = $('#expStrip');
+  if(expTimer){ clearInterval(expTimer); expTimer = null; }
+  if(!el) return;
+  if(isDemoMode() || !S.data || !S.data.langganan || !S.data.langganan.TARIKH_TAMAT){
+    el.style.display = 'none';
+    el.innerHTML = '';
+    return;
   }
-  v.insertBefore(bar, v.firstChild);
+  const L = S.data.langganan;
+  const endDt = parseEndOfDay(L.TARIKH_TAMAT);
+  const isTrial = L.STATUS !== 'AKTIF';
+  const isCrit = L.LOCKED || L.BAKI_HARI <= 2;
+  const isWarn = !isCrit && (isTrial || L.BAKI_HARI <= 30);
+  el.className = 'exp-strip' + (isCrit ? ' crit' : isWarn ? ' warn' : '');
+  const stLabel = L.ADA_MENUNGGU
+    ? `⏳ Menunggu Pengesahan (${esc(L.KOD_SEKOLAH)})`
+    : L.STATUS === 'AKTIF'
+      ? `✓ Akaun Aktif (${esc(L.KOD_SEKOLAH)})`
+      : `⏳ Percubaan Percuma (${esc(L.KOD_SEKOLAH)})`;
+  let btnHtml = '';
+  if(isMaster()){
+    btnHtml = `<button type="button" class="btn sm exp-act" onclick="openLanjutModal('${esc(L.KOD_SEKOLAH)}')">📅 Lanjut</button>`;
+  } else if(L.ADA_MENUNGGU){
+    btnHtml = `<button type="button" class="btn sm exp-act" onclick="semakAktif(this)">🔄 Semak Status</button>`;
+  } else if(isTrial || L.BAKI_HARI <= 30){
+    btnHtml = `<button type="button" class="btn sm gold exp-act" onclick="openPayModal()">💳 ${isTrial ? 'Aktifkan RM30/Thn' : 'Perbaharui'}</button>`;
+  }
+  el.innerHTML = `<div class="exp-l"><b>${stLabel}</b><span>• Tamat: <b>${esc(fmtDate(L.TARIKH_TAMAT))}</b></span><span class="exp-cd" id="expCdVal">⏱ ${fmtCountdown(endDt)}</span></div>${btnHtml ? '<div>'+btnHtml+'</div>' : ''}`;
+  el.style.display = 'flex';
+  expTimer = setInterval(()=>{
+    const cd = $('#expCdVal');
+    if(!cd || !S.data || !S.data.langganan){ clearInterval(expTimer); expTimer = null; return; }
+    cd.textContent = '⏱ ' + fmtCountdown(endDt);
+  }, 1000);
 }
 function payFormHTML(L, guru, isGate){
   const bk = (L && L.BANK) || { BANK:'MAYBANK (Malayan Banking Berhad)', NAMA_AKAUN:'MUHAMMAD NAIM', NO_AKAUN:'152189087344', JUMLAH_RM:30, WASAP:WASAP_ADMIN };
