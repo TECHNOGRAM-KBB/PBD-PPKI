@@ -198,8 +198,14 @@ function ss_() {
 }
 function sheet_(name) {
   const sh = ss_().getSheetByName(name);
-  if (!sh) throw new Error('Ralat data sistem. Sila WhatsApp Master Admin ' + WASAP_ADMIN + '.');
-  return sh;
+  if (sh) return sh;
+  // tab sistem yang boleh dicipta automatik jika tiada (contohnya selepas salin Sheet / Sheet baharu)
+  if (name === SH.LANGGANAN) return langgananSheet_();
+  if (name === SH.BAYARAN) return bayaranSheet_();
+  if (name === SH.GURU) return guruSheet_();
+  if (name === SH.KELAS) return kelasSheet_('RENDAH');
+  if (typeof SH_SM !== 'undefined' && name === SH_SM.KELAS) return kelasSheet_('MENENGAH');
+  throw new Error('Tab "' + name + '" tiada dalam Google Sheet ' + ss_().getName() + '. Semak nama tab (huruf & nombor mesti tepat) atau WhatsApp Master Admin ' + WASAP_ADMIN + '.');
 }
 function out_(obj) { return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON); }
 
@@ -1523,6 +1529,14 @@ function semakKebenaran() {
   } else L('ℹ SPREADSHEET_ID kosong — guna Sheet tempat skrip ini dibuka.');
   try { const s = ss_(); L('✅ Pangkalan data digunakan: ' + s.getName() + ' (' + s.getId() + ')'); }
   catch (e) { ok = false; L('❌ ' + (e && e.message || e)); }
+  // 1b) Tab wajib dalam Sheet
+  try {
+    const ada = {}; ss_().getSheets().forEach(x => { ada[x.getName()] = true; });
+    [SH.LANGGANAN, SH.BAYARAN, SH.GURU, SH.KELAS].forEach(n => { if (!ada[n]) { sheet_(n); L('✅ Tab ' + n + ' dicipta automatik'); } });
+    const tiada = Object.keys(SH).map(k => SH[k]).filter(n => !ss_().getSheetByName(n));
+    if (tiada.length) { ok = false; L('❌ Tab berikut tiada dalam Sheet: ' + tiada.join(', ')); }
+    else L('✅ Semua tab utama ada');
+  } catch (e) { ok = false; L('❌ Semakan tab: ' + (e && e.message || e)); }
   // 2) Sambungan luar (AI Groq & FPX toyyibPay)
   try { const r = UrlFetchApp.fetch('https://www.google.com/generate_204', { muteHttpExceptions: true }); L('✅ Sambungan luar dibenarkan (kod ' + r.getResponseCode() + ')'); }
   catch (e) { ok = false; L('❌ Sambungan luar disekat: ' + (e && e.message || e) + ' — mungkin disekat pentadbir domain.'); }
