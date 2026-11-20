@@ -2,7 +2,7 @@
  * e-PBD PPKI : SISTEM PELAPORAN PENTAKSIRAN BILIK DARJAH (Google Apps Script)
  * ID Google Sheet pangkalan data ditetapkan pada baris ke-5 di bawah.
  */
-const SPREADSHEET_ID = '1PufIwFhCJ2xjNNcnZOwyN6VTy1sZdYaKxuexPXrjZrs';
+const SPREADSHEET_ID = '1OFENKDJoBY5nHOTOWAawB1MeoANc2Zmj6Etnt1JNYUA';
 
 /**
  * =====================================================================
