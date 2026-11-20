@@ -176,7 +176,26 @@ function pastiLajur_(name, col) {
 }
 function migrasiTahap() { [SH.KELAS, SH.MP, SH.TAFSIRAN, SH.KEMAHIRAN].forEach(n => pastiLajur_(n, 'TAHAP')); }
 
-function ss_() { return SPREADSHEET_ID ? SpreadsheetApp.openById(SPREADSHEET_ID) : SpreadsheetApp.getActiveSpreadsheet(); }
+/* Buka Google Sheet pangkalan data.
+ * 1) Cuba SPREADSHEET_ID (baris 5). 2) Jika akaun ini tiada akses / ID kosong, guna Sheet tempat
+ * skrip ini dibuka (Extensions > Apps Script). 3) Jika kedua-dua gagal, papar mesej jelas. */
+let SS_CACHE_ = null;
+function akaunSkrip_() { try { return Session.getEffectiveUser().getEmail() || '(tidak diketahui)'; } catch (e) { return '(tidak diketahui)'; } }
+function ss_() {
+  if (SS_CACHE_) return SS_CACHE_;
+  let ralatId = '';
+  if (SPREADSHEET_ID) {
+    try { SS_CACHE_ = SpreadsheetApp.openById(SPREADSHEET_ID); return SS_CACHE_; }
+    catch (e) { ralatId = String(e && e.message || e); }
+  }
+  let aktif = null;
+  try { aktif = SpreadsheetApp.getActiveSpreadsheet(); } catch (e) { aktif = null; }
+  if (aktif) { SS_CACHE_ = aktif; return SS_CACHE_; }
+  throw new Error('Akaun ' + akaunSkrip_() + ' tidak dapat membuka Google Sheet pangkalan data' +
+    (SPREADSHEET_ID ? ' (ID: ' + SPREADSHEET_ID + ')' : '') + '. ' +
+    'Pastikan Sheet itu dimiliki / dikongsi (Editor) kepada akaun ini, atau buka Apps Script dari dalam Sheet tersebut (Extensions > Apps Script).' +
+    (ralatId ? ' [' + ralatId + ']' : ''));
+}
 function sheet_(name) {
   const sh = ss_().getSheetByName(name);
   if (!sh) throw new Error('Ralat data sistem. Sila WhatsApp Master Admin ' + WASAP_ADMIN + '.');
@@ -1487,6 +1506,32 @@ function saveTafsiran_(d, kod, tahap, peringkat) {
   }
   sh.appendRow(hd.map(h => d[h] !== undefined ? d[h] : ''));
   return true;
+}
+
+/* ====================== SEMAK & LULUS SEMUA KEBENARAN ======================
+ * Pilih fungsi semakKebenaran > Run. Google akan minta SEMUA kebenaran sekali gus
+ * (Google Sheet, sambungan luar untuk AI & FPX, cache, kunci, tetapan skrip).
+ * Tekan Allow. Kemudian lihat Execution log: setiap baris mesti bertanda ✅. */
+function semakKebenaran() {
+  const L = m => Logger.log(m);
+  L('Akaun yang menjalankan skrip: ' + akaunSkrip_());
+  let ok = true;
+  // 1) Google Sheet
+  if (SPREADSHEET_ID) {
+    try { const s = SpreadsheetApp.openById(SPREADSHEET_ID); L('✅ Sheet ID baris 5 boleh dibuka: ' + s.getName()); }
+    catch (e) { L('❌ Sheet ID baris 5 TIDAK boleh dibuka oleh akaun ini: ' + (e && e.message || e)); }
+  } else L('ℹ SPREADSHEET_ID kosong — guna Sheet tempat skrip ini dibuka.');
+  try { const s = ss_(); L('✅ Pangkalan data digunakan: ' + s.getName() + ' (' + s.getId() + ')'); }
+  catch (e) { ok = false; L('❌ ' + (e && e.message || e)); }
+  // 2) Sambungan luar (AI Groq & FPX toyyibPay)
+  try { const r = UrlFetchApp.fetch('https://www.google.com/generate_204', { muteHttpExceptions: true }); L('✅ Sambungan luar dibenarkan (kod ' + r.getResponseCode() + ')'); }
+  catch (e) { ok = false; L('❌ Sambungan luar disekat: ' + (e && e.message || e) + ' — mungkin disekat pentadbir domain.'); }
+  // 3) Cache, kunci & tetapan skrip
+  try { CacheService.getScriptCache().put('UJI_KEBENARAN', '1', 10); L('✅ Cache OK'); } catch (e) { ok = false; L('❌ Cache: ' + e); }
+  try { const k = LockService.getScriptLock(); k.waitLock(5000); k.releaseLock(); L('✅ Kunci serentak OK'); } catch (e) { ok = false; L('❌ Kunci: ' + e); }
+  try { PropertiesService.getScriptProperties().getProperty('MASTER_TOKEN'); L('✅ Tetapan skrip OK'); } catch (e) { ok = false; L('❌ Tetapan skrip: ' + e); }
+  L(ok ? '🎉 SEMUA OK. Sekarang: Deploy > Manage deployments > Edit > Version: New version > Deploy.'
+       : '⚠ Ada yang gagal. Betulkan baris bertanda ❌ di atas, kemudian Run semula.');
 }
 
 /* Jalankan sekali dari editor untuk menguji sambungan */
