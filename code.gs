@@ -126,7 +126,7 @@ function pastiSheetSM_() {
 const SHEET_BERSEKOLAH = ['00_KELAS', '01_TETAPAN', '03_MATA_PELAJARAN', '05_TAFSIRAN_TP'];
 const MARKAH_HEADERS = ['ID_MURID','KOD_MP','K1','K2','K3','K4','K5','K6','K7','K8','K9','K10','K11','K12','TP_KESELURUHAN','ULASAN_GURU_MP','DIKEMASKINI'];
 
-const KELAS_HEADERS = ['ID_KELAS','SESI','TAHUN','NAMA_KELAS','NAMA_GURU_KELAS','SHEET_MURID','SHEET_MARKAH','STATUS','DICIPTA','KOD_SEKOLAH','TAHAP'];
+const KELAS_HEADERS = ['ID_KELAS','SESI','TAHUN','NAMA_KELAS','NAMA_GURU_KELAS','SHEET_MURID','SHEET_MARKAH','STATUS','DICIPTA','KOD_SEKOLAH','TAHAP','GURU_MP'];
 // Tetapan yang berbeza bagi setiap kelas (disimpan dalam 00_KELAS, bukan 01_TETAPAN)
 const KELAS_KEYS = { SESI: 'SESI', TAHUN: 'TAHUN', KELAS: 'NAMA_KELAS', NAMA_GURU_KELAS: 'NAMA_GURU_KELAS', TAHAP: 'TAHAP' };
 
@@ -1207,6 +1207,16 @@ function updateKelas_(id, data, kod, peringkat) {
   if (data.TAHAP !== undefined) data.TAHAP = normTahap_(data.TAHAP, p) || tahapDariTahun_(data.TAHUN !== undefined ? data.TAHUN : k.TAHUN, p);
   Object.keys(KELAS_KEYS).forEach(key => { const c = hd.indexOf(KELAS_KEYS[key]); if (data[key] !== undefined && c > -1) sh.getRange(k._row, c + 1).setValue(data[key]); });
 }
+/* Nama guru MP mengikut KELAS (lajur GURU_MP = JSON {KOD_MP: NAMA}) */
+function guruMpKelas_(k) { try { const o = JSON.parse(String((k && k.GURU_MP) || '{}')); return (o && typeof o === 'object') ? o : {}; } catch (e) { return {}; } }
+function setGuruMpKelas_(k, kodMp, nama, peringkat) {
+  const sh = kelasSheet_(peringkat); const hd = headers_(sh);
+  let c = hd.indexOf('GURU_MP');
+  if (c < 0) { c = hd.length; sh.getRange(1, c + 1).setValue('GURU_MP').setFontWeight('bold').setBackground('#0f5257').setFontColor('#ffffff'); }
+  const o = guruMpKelas_(k); const n = String(nama || '').trim();
+  if (n) o[kodMp] = n; else delete o[kodMp];
+  sh.getRange(k._row, c + 1).setValue(JSON.stringify(o));
+}
 function editKelas_(id, d, kod, peringkat) {
   const k = kelas_(id, kod, false, peringkat);
   const nama = String(d.NAMA_KELAS != null ? d.NAMA_KELAS : k.NAMA_KELAS).trim().toUpperCase();
@@ -1246,7 +1256,7 @@ function getAll_(kelasId, guru) {
     senaraiKelas: senaraiKelas_(kod, p),
     murid: k ? readTable_(k.SHEET_MURID) : [],
     tahap: tahap,
-    mp: mpSekolah_(kod, tahap, p),
+    mp: (function () { const g = k ? guruMpKelas_(k) : {}; return mpSekolah_(kod, tahap, p).map(m => { const key = String(m.KOD_MP).trim().toUpperCase(); if (g[key] !== undefined) m.NAMA_GURU_MP = g[key]; return m; }); })(),
     markah: k ? readTable_(k.SHEET_MARKAH) : [],
     tafsiran: readSekolah_(shFor_('TAFSIRAN', p), KOD_GLOBAL).filter(r => ikutTahap_(r, tahap, p)),
     kemahiran: readCached_(shFor_('KEMAHIRAN', p)).filter(r => ikutTahap_(r, tahap, p)),
@@ -1359,7 +1369,14 @@ function doPost(e) {
       }
       case 'saveMurid':     res = upsert_(K().SHEET_MURID, 'ID_MURID', body.data, 'M'); break;
       case 'deleteMurid':   res = deleteMurid_(K(), body.id); break;
-      case 'saveMP':        res = saveMP_(body.data, kod, guru._master, TH(body.data), per); break;
+      case 'saveMP': {
+        const d = Object.assign({}, body.data || {}); const kk = kelas_(kid, kod, true, per);
+        if (kk && d.NAMA_GURU_MP !== undefined) { // nama guru MP disimpan bagi kelas ini sahaja
+          setGuruMpKelas_(kk, String(d.KOD_MP || '').trim().toUpperCase().replace(/\s+/g, ''), d.NAMA_GURU_MP, per);
+          delete d.NAMA_GURU_MP;
+        }
+        res = saveMP_(d, kod, guru._master, TH(d), per); break;
+      }
       case 'deleteMP':      M(); res = deleteMP_(body.id, KOD_GLOBAL, TH(body.data), per); break;
       case 'saveMarkah':    res = saveMarkah_(K().SHEET_MARKAH, body.kod, body.rows); break;
       case 'saveUlasanKelas': res = saveUlasanKelas_(K().SHEET_MURID, body.rows); break;
