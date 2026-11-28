@@ -11,7 +11,7 @@ var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvAYW4rKwrNzZbkkH27W
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>e-PBD PPKI • Sistem Pelaporan Pentaksiran Bilik Darjah</title>
 <meta name="description" content="Aplikasi pelaporan PBD digital: rekod tahap penguasaan, laporan murid dan sijil PBD.">
-<meta name="theme-color" content="#0f5257">
+<meta name="theme-color" content="#0F2A5C">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -22,10 +22,10 @@ var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvAYW4rKwrNzZbkkH27W
 <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root{
-  --ink:#10292b;--ink-2:#3d5a5c;--muted:#7a9294;--bg:#f4f1ea;--paper:#fffdf8;--line:#e3ddd0;
-  --brand:#0f5257;--brand-2:#147a72;--brand-soft:#dcefeb;--gold:#c9962b;--gold-soft:#f7ecd2;
-  --danger:#b4412f;--ok:#2f7d4f;--warn:#c27d0e;
-  --tp1:#d9534f;--tp2:#ee8a3c;--tp3:#e8c13a;--tp4:#8cc152;--tp5:#3aa57a;--tp6:#147a72;
+  --ink:#0F2440;--ink-2:#334155;--muted:#64748B;--bg:#EAF0F8;--paper:#FFFFFF;--line:#D8E2EF;
+  --brand:#0F2A5C;--brand-2:#1D4ED8;--brand-soft:#DBEAFE;--gold:#F59E0B;--gold-soft:#FEF3C7;--cyan:#06B6D4;
+  --danger:#DC2626;--ok:#059669;--warn:#D97706;
+  --tp1:#DC2626;--tp2:#EA580C;--tp3:#D97706;--tp4:#059669;--tp5:#0891B2;--tp6:#1D4ED8;
   --r:16px;--shadow:0 10px 30px -12px rgba(16,41,43,.25);
 }
 *{box-sizing:border-box}
@@ -52,7 +52,7 @@ a{color:var(--brand-2)}
 .top h1{margin:0;font-size:30px}
 .top p{margin:4px 0 0;color:var(--ink-2)}
 .chip{display:inline-flex;gap:6px;align-items:center;padding:6px 12px;border-radius:999px;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:12px}
-.chip.gold{background:var(--gold-soft);color:#8a6312}
+.chip.gold{background:var(--gold-soft);color:#92400E}
 .chip.red{background:#f6dcd6;color:var(--danger)}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
 .grid{display:grid;gap:16px}
@@ -86,7 +86,7 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 @keyframes tpflash{0%{box-shadow:0 0 0 0 rgba(201,150,43,.6)}100%{box-shadow:0 0 0 9px rgba(201,150,43,0)}}
 .tpx{margin-top:5px;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;white-space:nowrap}
 .tptag{font-size:9px;font-weight:800;letter-spacing:.5px;padding:1px 6px;border-radius:99px;background:var(--brand-soft);color:var(--brand)}
-.tptag.m{background:var(--gold-soft);color:#8a6312}
+.tptag.m{background:var(--gold-soft);color:#92400E}
 .tpsync{border:1px solid var(--line);background:#fff;border-radius:99px;width:18px;height:18px;line-height:1;font-size:11px;cursor:pointer;padding:0;color:var(--brand)}
 .tpsync:hover{background:var(--brand-soft)}
 .empty{padding:40px;text-align:center;color:var(--muted)}
@@ -105,16 +105,16 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 .hint{font-size:13px;color:var(--ink-2);background:var(--gold-soft);border-radius:12px;padding:10px 14px}
 /* ---------- Laporan (cetakan) ---------- */
 .sheet{background:#fff;color:#1a2b2c;width:210mm;min-height:297mm;padding:11mm 13mm 10mm;margin:0 auto 20px;box-shadow:var(--shadow);font-family:Arial,Helvetica,sans-serif;font-size:11px;position:relative;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.sheet .hd{display:flex;align-items:center;gap:14px;padding-bottom:9px;border-bottom:3px solid #0f4c4f;position:relative}
+.sheet .hd{display:flex;align-items:center;gap:14px;padding-bottom:9px;border-bottom:3px solid #0F2A5C;position:relative}
 .sheet .hd:after{content:"";position:absolute;left:0;right:0;bottom:-6px;border-bottom:1px solid #c9a24a}
 .sheet .hd img{width:58px;height:58px;object-fit:contain}
-.sheet .hd .lg{width:58px;height:58px;border-radius:50%;background:#0f4c4f;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.sheet .hd .lg{width:58px;height:58px;border-radius:50%;background:#0F2A5C;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
 .sheet .hd .nm{flex:1}
-.sheet .hd .nm b{display:block;font-size:17px;letter-spacing:.04em;color:#0f4c4f;text-transform:uppercase}
+.sheet .hd .nm b{display:block;font-size:17px;letter-spacing:.04em;color:#0F2A5C;text-transform:uppercase}
 .sheet .hd .nm span{display:block;font-size:10.5px;color:#4b5d5e;margin-top:2px}
 .sheet .hd .tag{text-align:right;font-size:9.5px;color:#4b5d5e;line-height:1.5}
-.sheet .hd .tag b{display:inline-block;background:#0f4c4f;color:#fff;padding:3px 9px;border-radius:3px;font-size:10px;letter-spacing:.08em}
-.sheet h2{text-align:center;font-size:15px;margin:18px 0 12px;letter-spacing:.12em;color:#0f4c4f}
+.sheet .hd .tag b{display:inline-block;background:#0F2A5C;color:#fff;padding:3px 9px;border-radius:3px;font-size:10px;letter-spacing:.08em}
+.sheet h2{text-align:center;font-size:15px;margin:18px 0 12px;letter-spacing:.12em;color:#0F2A5C}
 .sheet .info{display:grid;grid-template-columns:1fr 1fr;border:1px solid #c8d6d6;border-radius:6px;overflow:hidden;margin-bottom:12px}
 .sheet .info div{padding:6px 10px;border-bottom:1px solid #e3ecec;display:flex;gap:8px}
 .sheet .info div:nth-child(odd){border-right:1px solid #e3ecec}
@@ -124,11 +124,11 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 .sheet table{width:100%;border-collapse:collapse}
 .sheet .rt{border:1px solid #c8d6d6}
 .sheet th,.sheet td{border:1px solid #c8d6d6;padding:6px 8px;vertical-align:middle}
-.sheet th{background:#0f4c4f;color:#fff;font-size:10px;letter-spacing:.06em;border-color:#0f4c4f}
+.sheet th{background:#0F2A5C;color:#fff;font-size:10px;letter-spacing:.06em;border-color:#0F2A5C}
 .sheet .rt tbody tr:nth-child(even) td{background:#f4f8f8}
-.sheet td.mp{font-weight:700;width:25%;font-size:10.5px;color:#0f4c4f}
+.sheet td.mp{font-weight:700;width:25%;font-size:10.5px;color:#0F2A5C}
 .sheet td.tpc{text-align:center;width:11%}
-.sheet td.tpc i{font-style:normal;display:inline-block;min-width:38px;padding:4px 6px;border-radius:12px;background:#e6f0ef;color:#0f4c4f;font-weight:800;border:1px solid #9fc1bf}
+.sheet td.tpc i{font-style:normal;display:inline-block;min-width:38px;padding:4px 6px;border-radius:12px;background:#e6f0ef;color:#0F2A5C;font-weight:800;border:1px solid #9fc1bf}
 .sheet .ul{margin:14px 0;padding:9px 12px;border-left:4px solid #c9a24a;background:#fbf7ec;line-height:1.55;border-radius:0 6px 6px 0}
 .sheet .ul b{display:block;font-size:9.5px;letter-spacing:.08em;color:#8a6a1e;margin-bottom:3px}
 .sheet .ul-text{white-space:pre-wrap;overflow-wrap:anywhere}
@@ -153,54 +153,116 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 /* ---------- Sijil (premium) ---------- */
 .cert{width:297mm;height:210mm;background:#fff;margin:0 auto 20px;position:relative;box-shadow:var(--shadow);color:#13292b;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif}
 .cert .bgpat{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
-.cert .band{position:absolute;inset:4mm;border:1.6mm solid #0b3d40;background:linear-gradient(#0000,#0000)}
-.cert .band:after{content:"";position:absolute;inset:1mm;border:1.2px solid #d8b25a}
-.cert .fr{position:absolute;inset:11mm;border:2px solid #b8892a;border-radius:2px}
-.cert .fr:after{content:"";position:absolute;inset:2mm;border:.6px solid #b8892a}
+.cert .band{position:absolute;inset:4mm;border:1.6mm solid #0F2A5C;background:linear-gradient(#0000,#0000)}
+.cert .band:after{content:"";position:absolute;inset:1mm;border:1.2px solid #F59E0B}
+.cert .fr{position:absolute;inset:11mm;border:2px solid #D97706;border-radius:2px}
+.cert .fr:after{content:"";position:absolute;inset:2mm;border:.6px solid #D97706}
 .cert .orn{position:absolute;width:26mm;height:26mm}
 .cert .wm{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);width:120mm;height:120mm;opacity:.06;object-fit:contain;filter:grayscale(1)}
 .cert .in{position:absolute;inset:19mm 44mm 40mm;text-align:center;display:flex;flex-direction:column;align-items:center}
 .cert .logo-img{width:24mm;height:24mm;object-fit:contain;margin-bottom:2mm}
-.cert .sch{font-weight:800;letter-spacing:.22em;font-size:13px;color:#0b3d40;text-transform:uppercase}
+.cert .sch{font-weight:800;letter-spacing:.22em;font-size:13px;color:#0F2A5C;text-transform:uppercase}
 .cert .addr{font-size:10px;color:#6b7f80;letter-spacing:.08em}
-.cert .ttl{font-family:Fraunces;font-weight:900;font-size:32px;letter-spacing:.02em;margin:3mm 0 0;background:linear-gradient(180deg,#0b3d40,#147a72);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.05}
-.cert .sub{display:flex;align-items:center;gap:4mm;font-size:11.5px;letter-spacing:.32em;color:#a87a1f;font-weight:800;margin-top:2mm}
-.cert .sub:before,.cert .sub:after{content:"";width:22mm;height:1px;background:linear-gradient(90deg,transparent,#b8892a,transparent)}
+.cert .ttl{font-family:Fraunces;font-weight:900;font-size:32px;letter-spacing:.02em;margin:3mm 0 0;background:linear-gradient(180deg,#0F2A5C,#1D4ED8);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.05}
+.cert .sub{display:flex;align-items:center;gap:4mm;font-size:11.5px;letter-spacing:.32em;color:#92400E;font-weight:800;margin-top:2mm}
+.cert .sub:before,.cert .sub:after{content:"";width:22mm;height:1px;background:linear-gradient(90deg,transparent,#D97706,transparent)}
 .cert .txt{font-size:12.5px;max-width:205mm;line-height:1.6;color:#33494b}
-.cert .nm{font-family:'Great Vibes',cursive;font-size:48px;max-width:235mm;color:#0b3d40;margin:0;line-height:1.15;padding:0 8mm 1mm;border-bottom:1px solid #d8b25a}
-.cert .award{display:inline-block;margin:0 2px;padding:1px 10px;border-radius:99px;background:linear-gradient(135deg,#f6dc8e,#c9962b 55%,#8a6414);color:#fff;font-weight:900;letter-spacing:.12em;font-size:11px;text-shadow:0 1px 0 rgba(0,0,0,.2)}
+.cert .nm{font-family:'Great Vibes',cursive;font-size:48px;max-width:235mm;color:#0F2A5C;margin:0;line-height:1.15;padding:0 8mm 1mm;border-bottom:1px solid #F59E0B}
+.cert .award{display:inline-block;margin:0 2px;padding:1px 10px;border-radius:99px;background:linear-gradient(135deg,#FDE68A,#F59E0B 55%,#92400E);color:#fff;font-weight:900;letter-spacing:.12em;font-size:11px;text-shadow:0 1px 0 rgba(0,0,0,.2)}
 .cert table{border-collapse:separate;border-spacing:0;margin:6mm auto 0;font-size:12px;width:230mm;border:1px solid #d9c9a0;border-radius:6px;overflow:hidden;background:#fff}
 .cert td{padding:6px 10px;text-align:left;border-bottom:1px solid #eee3c8}
 .cert tr:nth-child(odd) td{background:rgba(247,236,210,.28)}
 .cert td.c{text-align:center;font-weight:900;color:#fff;width:13mm}
-.cert td.c span{display:inline-block;min-width:11mm;border-radius:4px;padding:1px 0;background:#0b3d40}
+.cert td.c span{display:inline-block;min-width:11mm;border-radius:4px;padding:1px 0;background:#0F2A5C}
 .cert td.gap{width:4mm;background:#fff!important;border:0}
 .cert .seal{position:absolute;right:24mm;top:20mm;width:32mm;height:32mm}
 .cert .sigs{position:absolute;left:32mm;right:32mm;bottom:19mm;display:flex;justify-content:space-between;align-items:flex-end;font-size:10.5px}
 .cert .sigs .s{width:66mm;border-top:1px solid #13292b;padding-top:4px;text-align:center;letter-spacing:.04em}
 .cert .sigs .mid{text-align:center;color:#6b7f80;font-size:9.5px;letter-spacing:.1em}
-.cert .sigs .mid b{display:block;color:#0b3d40;font-size:11px;letter-spacing:.04em}
+.cert .sigs .mid b{display:block;color:#0F2A5C;font-size:11px;letter-spacing:.04em}
 .cert .serial{position:absolute;left:0;right:0;text-align:center;bottom:14mm;font-size:7.5px;letter-spacing:.2em;color:#9aa9aa}
+/* ---------- Templat Sijil v26 — 3 gaya ijazah moden ---------- */
+.cert .cert-logos{display:flex;gap:8mm;align-items:center;justify-content:center;margin-bottom:2mm}
+.cert .cert-logos .logo-img{margin-bottom:0}
+.cert .topband{display:none}
+.cert .logo-img2{width:20mm;height:20mm}
+/* Templat 1 — Diraja Moden (navy + emas, asal diperkemas) */
+.cert-t1 .ttl{background:linear-gradient(180deg,#0F2A5C,#1D4ED8);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* Templat 2 — Ijazah Klasik (parchment krim, burgundi & emas) */
+.cert-t2{background:linear-gradient(180deg,#FDF8EC 0%,#F7ECD2 100%)}
+.cert-t2 .bgpat{opacity:.22}
+.cert-t2 .topband{display:block;position:absolute;left:0;right:0;top:0;height:13mm;background:linear-gradient(90deg,#5F1220,#7F1D2D 50%,#5F1220);border-bottom:1.2mm solid #F59E0B}
+.cert-t2 .topband:after{content:"PENTAKSIRAN BILIK DARJAH  •  KEMENTERIAN PENDIDIKAN MALAYSIA";position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#FDE68A;font-size:8.5px;font-weight:800;letter-spacing:.28em}
+.cert-t2 .band{border-color:#7F1D2D;top:16mm}
+.cert-t2 .band:after{border-color:#F59E0B}
+.cert-t2 .fr{border-color:#7F1D2D;top:20mm}
+.cert-t2 .fr:after{border-color:#D97706}
+.cert-t2 .in{inset:24mm 44mm 40mm}
+.cert-t2 .sch,.cert-t2 .nm,.cert-t2 .sigs .mid b{color:#7F1D2D}
+.cert-t2 .ttl{font-family:Fraunces;font-weight:900;font-size:30px;color:#7F1D2D;background:none;-webkit-text-fill-color:#7F1D2D;letter-spacing:.04em}
+.cert-t2 .sub{color:#92400E}
+.cert-t2 .nm{font-size:54px;border-bottom:2px solid #F59E0B}
+.cert-t2 .award{background:linear-gradient(135deg,#991B1B,#7F1D2D)}
+.cert-t2 table{border-color:#D9B45B}
+.cert-t2 td{border-bottom-color:#EAD9A8}
+.cert-t2 tr:nth-child(odd) td{background:rgba(127,29,45,.05)}
+.cert-t2 td.c span{background:#7F1D2D}
+.cert-t2 .seal{top:24mm}
+/* Templat 3 — Moden Prestij (navy + biru diraja + cyan, nama huruf besar) */
+.cert-t3 .bgpat{opacity:.16}
+.cert-t3 .topband{display:block;position:absolute;left:0;right:0;top:0;height:11mm;background:linear-gradient(90deg,#0F2A5C,#1D4ED8 55%,#06B6D4);border-bottom:1mm solid #F59E0B}
+.cert-t3 .band{border-color:#0F2A5C;top:14mm}
+.cert-t3 .band:after{border-color:#06B6D4}
+.cert-t3 .fr{border-color:#1D4ED8;top:18mm}
+.cert-t3 .fr:after{border-color:#93C5FD}
+.cert-t3 .in{inset:21mm 44mm 40mm}
+.cert-t3 .ttl{background:linear-gradient(90deg,#0F2A5C,#1D4ED8,#06B6D4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cert-t3 .nm{font-family:Fraunces;font-weight:900;font-size:42px;letter-spacing:.02em;text-transform:uppercase;color:#0F2A5C;border-bottom:3px solid #06B6D4}
+.cert-t3 .sub{color:#1D4ED8}
+.cert-t3 .award{background:linear-gradient(135deg,#06B6D4,#1D4ED8)}
+.cert-t3 table{border-color:#BFDBFE}
+.cert-t3 td{border-bottom-color:#DBEAFE}
+.cert-t3 tr:nth-child(odd) td{background:rgba(29,78,216,.05)}
+.cert-t3 td.c span{background:#1D4ED8}
+.cert-t3 .seal{top:22mm}
+/* Pemilih templat (Tetapan + tab Sijil) */
+.tpl-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tpl-card{border:2px solid #D8E2EF;border-radius:14px;padding:12px;cursor:pointer;background:#fff;text-align:left;transition:.15s}
+.tpl-card:hover{border-color:#1D4ED8;transform:translateY(-2px)}
+.tpl-card.on{border-color:#F59E0B;box-shadow:0 0 0 3px #FEF3C7,0 8px 18px -8px rgba(15,42,92,.4)}
+.tpl-card .mini{height:64px;border-radius:8px;margin-bottom:8px;position:relative;overflow:hidden;border:1px solid rgba(15,42,92,.15)}
+.tpl-card .mini:after{content:"";position:absolute;left:14%;right:14%;top:38%;height:2px;background:currentColor;opacity:.5}
+.tpl-card .mini:before{content:"SIJIL";position:absolute;left:0;right:0;top:12%;text-align:center;font-family:Fraunces;font-weight:900;font-size:11px;letter-spacing:.18em}
+.tpl-card.t1 .mini{background:linear-gradient(180deg,#fff,#EFF6FF);color:#0F2A5C;border-top:6px solid #F59E0B}
+.tpl-card.t2 .mini{background:linear-gradient(180deg,#FDF8EC,#F7ECD2);color:#7F1D2D;border-top:6px solid #7F1D2D}
+.tpl-card.t3 .mini{background:linear-gradient(180deg,#fff,#EFF6FF);color:#1D4ED8;border-top:6px solid #06B6D4}
+.tpl-card b{display:block;font-size:13.5px;color:#0F2A5C}
+.tpl-card small{color:#64748B;font-size:11.5px;line-height:1.4;display:block;margin-top:2px}
+.cert-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;padding:12px 14px;border:2px solid #DBEAFE;border-radius:14px;background:linear-gradient(180deg,#EFF6FF,#fff)}
+.cert-bar .tpl-btn{padding:8px 12px;border-radius:10px;border:2px solid #CBD5E1;background:#fff;cursor:pointer;font-weight:800;font-size:13px;color:#0F2A5C}
+.cert-bar .tpl-btn.on{border-color:#F59E0B;background:#FEF3C7;box-shadow:0 0 0 3px #FDE68A}
+@media(max-width:640px){.tpl-picker{grid-template-columns:1fr}}
+@media print{.cert-bar,.tpl-picker{display:none!important}}
 /* ---------- Profil prestasi (spider) — latar putih, gaya teknologi ---------- */
 .prof{width:297mm;height:210mm;margin:0 auto 20px;position:relative;overflow:hidden;box-shadow:var(--shadow);color:#0f2a2c;font-family:'Plus Jakarta Sans',sans-serif;background:#fff}
 .prof .grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(15,82,87,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(15,82,87,.07) 1px,transparent 1px);background-size:6mm 6mm}
 .prof .grid-bg:after{content:"";position:absolute;inset:6mm;border:.4mm solid rgba(15,82,87,.35);clip-path:polygon(0 0,14mm 0,14mm .6mm,.6mm .6mm,.6mm 14mm,0 14mm,0 100%,14mm 100%,14mm calc(100% - .6mm),.6mm calc(100% - .6mm),.6mm calc(100% - 14mm),0 calc(100% - 14mm),0 0,100% 0,100% 14mm,calc(100% - .6mm) 14mm,calc(100% - .6mm) .6mm,calc(100% - 14mm) .6mm,calc(100% - 14mm) 0,100% 0,100% 100%,calc(100% - 14mm) 100%,calc(100% - 14mm) calc(100% - .6mm),calc(100% - .6mm) calc(100% - .6mm),calc(100% - .6mm) calc(100% - 14mm),100% calc(100% - 14mm),100% 100%,0 100%)}
-.prof .hd{position:absolute;left:14mm;right:14mm;top:11mm;display:flex;align-items:center;gap:5mm;border-bottom:.5mm solid #0f5257;padding-bottom:3.5mm}
-.prof .hd:after{content:"";position:absolute;left:0;bottom:-1.6mm;width:40mm;height:.8mm;background:#c9962b}
+.prof .hd{position:absolute;left:14mm;right:14mm;top:11mm;display:flex;align-items:center;gap:5mm;border-bottom:.5mm solid #0F2A5C;padding-bottom:3.5mm}
+.prof .hd:after{content:"";position:absolute;left:0;bottom:-1.6mm;width:40mm;height:.8mm;background:#F59E0B}
 .prof .hd img{width:15mm;height:15mm;object-fit:contain}
-.prof .hd .t{font-family:Fraunces;font-weight:900;font-size:24px;color:#0b3d40}
-.prof .hd .k{font-size:9.5px;letter-spacing:.28em;color:#a87a1f;font-weight:800;font-family:'JetBrains Mono',monospace}
+.prof .hd .t{font-family:Fraunces;font-weight:900;font-size:24px;color:#0F2A5C}
+.prof .hd .k{font-size:9.5px;letter-spacing:.28em;color:#92400E;font-weight:800;font-family:'JetBrains Mono',monospace}
 .prof .hd .r{margin-left:auto;text-align:right;font-size:10px;color:#4a6567;line-height:1.5}
-.prof .hd .r b{color:#0b3d40;font-size:13px}
+.prof .hd .r b{color:#0F2A5C;font-size:13px}
 .prof .chart{position:absolute;left:8mm;top:33mm;width:165mm;height:165mm}
 .prof .pside{position:absolute;right:14mm;top:35mm;width:108mm;display:flex;flex-direction:column;gap:3.5mm}
 .prof .glass{background:#fff;border:.35mm solid #cfe0de;border-radius:2.5mm;padding:3.5mm 4.5mm;position:relative}
-.prof .glass:before{content:"";position:absolute;left:-.35mm;top:3mm;bottom:3mm;width:.9mm;border-radius:1mm;background:#0f5257}
+.prof .glass:before{content:"";position:absolute;left:-.35mm;top:3mm;bottom:3mm;width:.9mm;border-radius:1mm;background:#0F2A5C}
 .prof .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm}
-.prof .kpi .v{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:23px;color:#0b3d40;line-height:1}
+.prof .kpi .v{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:23px;color:#0F2A5C;line-height:1}
 .prof .kpi .l{font-size:8px;letter-spacing:.18em;color:#5b7577;margin-top:1.5mm;font-weight:800}
-.prof .kpi.g .v{color:#a87a1f}
-.prof .ttlx{font-size:8.5px;letter-spacing:.22em;color:#0f5257;font-weight:800;margin-bottom:2.2mm;font-family:'JetBrains Mono',monospace}
+.prof .kpi.g .v{color:#92400E}
+.prof .ttlx{font-size:8.5px;letter-spacing:.22em;color:#0F2A5C;font-weight:800;margin-bottom:2.2mm;font-family:'JetBrains Mono',monospace}
 .prof .bars .b{display:grid;grid-template-columns:5mm 1fr 33mm 10mm;align-items:center;gap:2mm;font-size:9.2px;margin:1.5mm 0;color:#163638}
 .prof .bars .ix{width:4.4mm;height:4.4mm;border-radius:50%;color:#fff;font-weight:800;font-size:7.5px;display:grid;place-items:center}
 .prof .bars .nmx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
@@ -208,22 +270,22 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 .prof .bars .tr i{height:2.6mm;border-radius:.5mm;background:#e8efee}
 .prof .bars .n{font-weight:900;text-align:right;font-family:'JetBrains Mono',monospace;font-size:10px}
 .prof .ins{font-size:9.5px;line-height:1.6;color:#294a4c}
-.prof .ins b{color:#0b3d40}
+.prof .ins b{color:#0F2A5C}
 .prof .ft{position:absolute;left:14mm;right:14mm;bottom:9mm;display:flex;justify-content:space-between;font-size:8px;letter-spacing:.2em;color:#6b8486;font-family:'JetBrains Mono',monospace}
 .logo-up{display:flex;gap:14px;align-items:center;border:1.5px dashed var(--line);border-radius:12px;padding:12px;background:#fff}
-.logo-up .pv{width:72px;height:72px;border-radius:10px;background:#f4f1ea;display:grid;place-items:center;overflow:hidden;font-size:11px;color:var(--muted);text-align:center}
+.logo-up .pv{width:72px;height:72px;border-radius:10px;background:#EAF0F8;display:grid;place-items:center;overflow:hidden;font-size:11px;color:var(--muted);text-align:center}
 .logo-up .pv img{width:100%;height:100%;object-fit:contain}
 
 /* ---------- Laporan Kreatif Sekolah Menengah (KSSMPK — Royal Navy & Gold) ---------- */
 .sheet-sm{background:#fff;color:#14213d;width:210mm;min-height:297mm;padding:10mm 12mm 10mm;margin:0 auto 20px;box-shadow:var(--shadow);font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:10.5px;position:relative;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.sheet-sm .sm-top{background:linear-gradient(135deg,#14213d 0%,#1d3557 65%,#26466d 100%);color:#fff;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:14px;border-bottom:3.5px solid #c9962b}
+.sheet-sm .sm-top{background:linear-gradient(135deg,#14213d 0%,#1d3557 65%,#26466d 100%);color:#fff;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:14px;border-bottom:3.5px solid #F59E0B}
 .sheet-sm .sm-top img{width:54px;height:54px;object-fit:contain;background:#fff;border-radius:10px;padding:3px}
-.sheet-sm .sm-top .sm-lg{width:54px;height:54px;border-radius:10px;background:#c9962b;color:#14213d;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;font-family:Fraunces}
+.sheet-sm .sm-top .sm-lg{width:54px;height:54px;border-radius:10px;background:#F59E0B;color:#14213d;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;font-family:Fraunces}
 .sheet-sm .sm-top .sm-nm{flex:1}
 .sheet-sm .sm-top .sm-nm b{display:block;font-size:15.5px;letter-spacing:.03em;text-transform:uppercase}
 .sheet-sm .sm-top .sm-nm span{display:block;font-size:9.5px;opacity:.85;margin-top:2px}
 .sheet-sm .sm-top .sm-badge{text-align:right;font-size:9px;line-height:1.5}
-.sheet-sm .sm-top .sm-badge i{font-style:normal;display:inline-block;background:#c9962b;color:#14213d;font-weight:900;padding:3px 9px;border-radius:99px;letter-spacing:.08em;font-size:9px}
+.sheet-sm .sm-top .sm-badge i{font-style:normal;display:inline-block;background:#F59E0B;color:#14213d;font-weight:900;padding:3px 9px;border-radius:99px;letter-spacing:.08em;font-size:9px}
 .sheet-sm .sm-ttl{text-align:center;margin:12px 0 10px}
 .sheet-sm .sm-ttl h2{margin:0;font-size:14.5px;letter-spacing:.1em;color:#14213d;font-family:Fraunces}
 .sheet-sm .sm-ttl small{display:inline-block;margin-top:3px;padding:2px 10px;border-radius:99px;background:#eef2f7;color:#1d3557;font-weight:700;font-size:9.5px;letter-spacing:.06em}
@@ -236,25 +298,25 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 .sheet-sm .sm-info span{font-weight:800;color:#14213d;font-size:10px}
 .sheet-sm .sm-kpis{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .sheet-sm .sm-kpi{border:1px solid #d5dfea;border-radius:8px;padding:6px 8px;background:#fff;text-align:center;display:flex;flex-direction:column;justify-content:center}
-.sheet-sm .sm-kpi.wide{grid-column:1/-1;background:linear-gradient(135deg,#fbf5e6,#f4e4bc);border-color:#d8b25a}
+.sheet-sm .sm-kpi.wide{grid-column:1/-1;background:linear-gradient(135deg,#fbf5e6,#f4e4bc);border-color:#F59E0B}
 .sheet-sm .sm-kpi .v{font-family:'JetBrains Mono',monospace;font-weight:900;font-size:16px;color:#14213d;line-height:1.1}
-.sheet-sm .sm-kpi.wide .v{font-size:12.5px;letter-spacing:.12em;color:#7a560f}
+.sheet-sm .sm-kpi.wide .v{font-size:12.5px;letter-spacing:.12em;color:#92400E}
 .sheet-sm .sm-kpi .l{font-size:8px;letter-spacing:.08em;color:#5c708a;font-weight:700;margin-top:2px}
 .sheet-sm table.sm-rt{width:100%;border-collapse:separate;border-spacing:0;border:1px solid #cdd8e5;border-radius:8px;overflow:hidden}
-.sheet-sm table.sm-rt th{background:#14213d;color:#fff;font-size:9.5px;letter-spacing:.06em;padding:7px 8px;text-align:left;border-bottom:2px solid #c9962b}
+.sheet-sm table.sm-rt th{background:#14213d;color:#fff;font-size:9.5px;letter-spacing:.06em;padding:7px 8px;text-align:left;border-bottom:2px solid #F59E0B}
 .sheet-sm table.sm-rt td{padding:7px 8px;border-bottom:1px solid #e5ecf3;vertical-align:top}
 .sheet-sm table.sm-rt tbody tr:nth-child(even) td{background:#f8fafc}
 .sheet-sm table.sm-rt tbody tr:last-child td{border-bottom:0}
 .sheet-sm .sm-mp{font-weight:800;color:#14213d;font-size:10.5px}
 .sheet-sm .sm-chips{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
 .sheet-sm .sm-chip{font-size:8.5px;padding:1.5px 6px;border-radius:4px;background:#eaf0f8;color:#1d3557;border:1px solid #d2dfee;font-weight:600}
-.sheet-sm .sm-chip b{color:#0f5257}
+.sheet-sm .sm-chip b{color:#0F2A5C}
 .sheet-sm .sm-tpbox{text-align:center;min-width:58px}
 .sheet-sm .sm-tppill{display:inline-block;padding:3px 9px;border-radius:99px;font-weight:900;color:#fff;font-size:10.5px;font-family:'JetBrains Mono',monospace}
 .sheet-sm .sm-pbar{height:4px;border-radius:99px;background:#e2e8f0;margin-top:4px;overflow:hidden}
 .sheet-sm .sm-pbar i{display:block;height:100%;border-radius:99px}
-.sheet-sm .sm-ul{margin:11px 0;padding:8px 12px;border-left:4px solid #c9962b;background:#fdfaf2;border-radius:0 8px 8px 0;border-top:1px solid #efe4c6;border-right:1px solid #efe4c6;border-bottom:1px solid #efe4c6}
-.sheet-sm .sm-ul b{display:block;font-size:9px;letter-spacing:.08em;color:#8a6312;margin-bottom:3px}
+.sheet-sm .sm-ul{margin:11px 0;padding:8px 12px;border-left:4px solid #F59E0B;background:#fdfaf2;border-radius:0 8px 8px 0;border-top:1px solid #efe4c6;border-right:1px solid #efe4c6;border-bottom:1px solid #efe4c6}
+.sheet-sm .sm-ul b{display:block;font-size:9px;letter-spacing:.08em;color:#92400E;margin-bottom:3px}
 .sheet-sm .sm-leg{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;font-size:8.5px;color:#4a5e75;background:#f4f7fb;border:1px solid #dce5f0;border-radius:6px;padding:5px 8px}
 .sheet-sm .sm-leg b{color:#14213d}
 .sheet-sm .ft{position:absolute;left:12mm;right:12mm;bottom:6mm;border-top:1px solid #d5dfea;padding-top:4px;font-size:8.5px;color:#6c7f94;display:flex;justify-content:space-between}
@@ -270,7 +332,7 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 
 /* ---------- Pelaporan Penuh Setiap Subjek Sekolah Menengah (KSSMPK — Executive) ---------- */
 .sheet-sub{background:#fff;color:#14213d;width:210mm;min-height:297mm;padding:10mm 12mm 10mm;margin:0 auto 20px;box-shadow:var(--shadow);font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:10.5px;position:relative;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.sheet-sub .sub-kpm{background:linear-gradient(135deg,#0d1b36 0%,#183059 60%,#234575 100%);color:#fff;border-radius:12px;padding:13px 16px;display:flex;align-items:center;gap:14px;border-bottom:4px solid #c9962b;position:relative;overflow:hidden}
+.sheet-sub .sub-kpm{background:linear-gradient(135deg,#0d1b36 0%,#183059 60%,#234575 100%);color:#fff;border-radius:12px;padding:13px 16px;display:flex;align-items:center;gap:14px;border-bottom:4px solid #F59E0B;position:relative;overflow:hidden}
 .sheet-sub .sub-kpm:after{content:"";position:absolute;right:-24px;top:-24px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(201,150,43,.28),transparent 70%);pointer-events:none}
 .sheet-sub .sub-kpm img{width:56px;height:56px;object-fit:contain;background:#fff;border-radius:10px;padding:3px;box-shadow:0 4px 10px rgba(0,0,0,.2)}
 .sheet-sub .sub-kpm .sub-lg{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#e5b94c,#b5831d);color:#0d1b36;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;font-family:Fraunces;flex:none}
@@ -279,9 +341,9 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 .sheet-sub .sub-kpm .sub-sch b{display:block;font-size:15px;letter-spacing:.03em;margin-top:2px;text-transform:uppercase}
 .sheet-sub .sub-kpm .sub-sch span{display:block;font-size:9.5px;opacity:.86;margin-top:1px}
 .sheet-sub .sub-kpm .sub-tag{text-align:right;font-size:9px;line-height:1.5;z-index:1}
-.sheet-sub .sub-kpm .sub-tag i{font-style:normal;display:inline-block;background:#c9962b;color:#0d1b36;font-weight:900;padding:3px 10px;border-radius:99px;letter-spacing:.08em;font-size:9px;margin-bottom:3px}
+.sheet-sub .sub-kpm .sub-tag i{font-style:normal;display:inline-block;background:#F59E0B;color:#0d1b36;font-weight:900;padding:3px 10px;border-radius:99px;letter-spacing:.08em;font-size:9px;margin-bottom:3px}
 .sheet-sub .sub-hero{margin:12px 0;border-radius:12px;border:1.5px solid #cfdbe8;background:linear-gradient(135deg,#f8fafd 0%,#eef3f9 100%);padding:12px 15px;display:grid;grid-template-columns:1fr 142px;gap:14px;align-items:center}
-.sheet-sub .sub-hero .sub-eyebrow{font-size:8.5px;letter-spacing:.18em;font-weight:800;color:#8a6312;text-transform:uppercase}
+.sheet-sub .sub-hero .sub-eyebrow{font-size:8.5px;letter-spacing:.18em;font-weight:800;color:#92400E;text-transform:uppercase}
 .sheet-sub .sub-hero h2{margin:3px 0 6px;text-align:left;font-family:Fraunces,Georgia,serif;font-size:19px;letter-spacing:-.01em;color:#0d1b36;line-height:1.15}
 .sheet-sub .sub-hero .sub-stmt{background:#fff;border-left:3.5px solid #183059;border-radius:0 8px 8px 0;padding:7px 10px;font-size:10px;line-height:1.5;color:#273c57;box-shadow:0 2px 6px rgba(13,27,54,.05)}
 .sheet-sub .sub-hero .sub-stmt b{display:block;font-size:8.5px;letter-spacing:.08em;color:#5c708a;text-transform:uppercase;margin-bottom:2px}
@@ -301,7 +363,7 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 .sheet-sub .sub-sec-hd b{font-size:10px;letter-spacing:.12em;color:#0d1b36;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
 .sheet-sub .sub-sec-hd span{font-size:9px;color:#5c708a;font-weight:600}
 .sheet-sub table.sub-tbl{width:100%;border-collapse:separate;border-spacing:0;border:1px solid #c9d6e4;border-radius:10px;overflow:hidden}
-.sheet-sub table.sub-tbl th{background:#0d1b36;color:#fff;font-size:9px;letter-spacing:.08em;padding:7px 9px;text-align:left;border-bottom:2.5px solid #c9962b;text-transform:uppercase}
+.sheet-sub table.sub-tbl th{background:#0d1b36;color:#fff;font-size:9px;letter-spacing:.08em;padding:7px 9px;text-align:left;border-bottom:2.5px solid #F59E0B;text-transform:uppercase}
 .sheet-sub table.sub-tbl td{padding:7px 9px;border-bottom:1px solid #e5ecf4;vertical-align:top;line-height:1.48}
 .sheet-sub table.sub-tbl tbody tr:nth-child(even) td{background:#f8fafd}
 .sheet-sub table.sub-tbl tbody tr:last-child td{border-bottom:0}
@@ -311,8 +373,8 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 .sheet-sub .sub-pill{display:inline-block;padding:3px 9px;border-radius:99px;font-weight:900;color:#fff;font-size:10px;font-family:'JetBrains Mono',monospace}
 .sheet-sub .sub-mbar{height:4px;border-radius:99px;background:#e2e8f0;margin-top:4px;overflow:hidden}
 .sheet-sub .sub-mbar i{display:block;height:100%;border-radius:99px}
-.sheet-sub .sub-ul{margin:12px 0 10px;padding:9px 13px;border-left:4px solid #c9962b;background:linear-gradient(135deg,#fffdf6,#fbf5e4);border-top:1px solid #efe3c2;border-right:1px solid #efe3c2;border-bottom:1px solid #efe3c2;border-radius:0 10px 10px 0}
-.sheet-sub .sub-ul b{display:block;font-size:9px;letter-spacing:.1em;color:#8a6312;margin-bottom:4px;text-transform:uppercase}
+.sheet-sub .sub-ul{margin:12px 0 10px;padding:9px 13px;border-left:4px solid #F59E0B;background:linear-gradient(135deg,#fffdf6,#fbf5e4);border-top:1px solid #efe3c2;border-right:1px solid #efe3c2;border-bottom:1px solid #efe3c2;border-radius:0 10px 10px 0}
+.sheet-sub .sub-ul b{display:block;font-size:9px;letter-spacing:.1em;color:#92400E;margin-bottom:4px;text-transform:uppercase}
 .sheet-sub .sub-sig{display:grid;grid-template-columns:1fr 1fr;gap:36px;margin-top:20px;font-size:10px}
 .sheet-sub .sub-sig .sg{padding-top:34px}
 .sheet-sub .sub-sig .ln{border-top:1.2px solid #0d1b36;padding-top:5px;line-height:1.45}
@@ -345,19 +407,19 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 .ml-item .ml-nm{flex:1;min-width:0}
 .ml-item .ml-nm b{display:block;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ml-item .ml-nm small{color:var(--muted);font-size:11.5px}
-.ml-item .ml-kls{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--gold-soft);color:#8a6312;white-space:nowrap}
+.ml-item .ml-kls{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--gold-soft);color:#92400E;white-space:nowrap}
 .ml-empty{padding:14px;text-align:center;color:var(--ink-2);font-size:13px;line-height:1.5;background:var(--gold-soft);border-radius:10px}
 
 
 /* ---------- Sistem Pembayaran & Langganan (v16) ---------- */
 .trial-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;margin-bottom:16px;border-radius:14px;background:linear-gradient(135deg,#fff9e6,#fef1c7);border:1.5px solid #e6be5a;color:#6b4b08;box-shadow:0 8px 20px -12px rgba(180,130,20,.45)}
 .trial-bar b{color:#4a3200}
-.pay-wrap{position:relative;z-index:2;width:min(680px,95vw);max-height:94vh;overflow:auto;padding:24px;border-radius:22px;background:#fffdf8;color:var(--ink);border:1px solid rgba(255,255,255,.9);box-shadow:0 24px 70px rgba(0,0,0,.55);animation:aIn .4s ease}
+.pay-wrap{position:relative;z-index:2;width:min(680px,95vw);max-height:94vh;overflow:auto;padding:24px;border-radius:22px;background:#FFFFFF;color:var(--ink);border:1px solid rgba(255,255,255,.9);box-shadow:0 24px 70px rgba(0,0,0,.55);animation:aIn .4s ease}
 .pay-hd{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:2px solid var(--brand-soft);margin-bottom:14px}
-.pay-hd .ic{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#0f5257,#147a72);color:#fff;display:grid;place-items:center;font-size:24px;flex:none;box-shadow:0 8px 18px -6px rgba(15,82,87,.5)}
+.pay-hd .ic{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#0F2A5C,#1D4ED8);color:#fff;display:grid;place-items:center;font-size:24px;flex:none;box-shadow:0 8px 18px -6px rgba(15,82,87,.5)}
 .pay-hd h2{margin:0;font-size:22px;color:var(--brand)}
 .pay-hd p{margin:3px 0 0;font-size:13px;color:var(--ink-2)}
-.bank-box{background:linear-gradient(135deg,#14213d 0%,#1d3557 100%);color:#fff;border-radius:16px;padding:16px 18px;margin:12px 0;border-bottom:4px solid #c9962b;position:relative;overflow:hidden}
+.bank-box{background:linear-gradient(135deg,#14213d 0%,#1d3557 100%);color:#fff;border-radius:16px;padding:16px 18px;margin:12px 0;border-bottom:4px solid #F59E0B;position:relative;overflow:hidden}
 .bank-box .bk-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .bank-box .bk-badge{background:#facc15;color:#14213d;font-weight:900;font-size:11px;padding:3px 10px;border-radius:99px;letter-spacing:.06em}
 .bank-box .bk-price{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:900;color:#fde68a}
@@ -417,7 +479,7 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 .py-pend-t{font-weight:800;margin-bottom:2px}
 .py-pend-a{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .py-ok{text-align:center;padding:10px 0}
-.py-ok-ic{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#10b981,#147a72);color:#fff;display:grid;place-items:center;font-size:30px;margin:0 auto 12px}
+.py-ok-ic{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#10b981,#1D4ED8);color:#fff;display:grid;place-items:center;font-size:30px;margin:0 auto 12px}
 .py-ok h2{margin:0;color:var(--brand)}
 .py-ok p{margin:6px 0 16px;color:var(--ink-2);font-size:13.5px}
 .py-rcpt{text-align:left;border:1px solid var(--line);border-radius:14px;overflow:hidden;max-width:420px;margin:0 auto}
@@ -440,7 +502,7 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
 
 
 /* ---------- Jalur Countdown Tamat Akaun (Atas Sekali, Ringkas) ---------- */
-.exp-strip{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:6px 12px;margin-bottom:12px;border-radius:10px;font-size:11.5px;line-height:1.35;background:rgba(220,239,235,.85);border:1px solid rgba(15,82,87,.22);color:#0f5257;backdrop-filter:blur(8px)}
+.exp-strip{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:6px 12px;margin-bottom:12px;border-radius:10px;font-size:11.5px;line-height:1.35;background:#DBEAFE;border:1px solid #BFDBFE;color:#0F2A5C}
 .exp-strip.warn{background:rgba(254,243,199,.92);border-color:#e6be5a;color:#6b4600}
 .exp-strip.crit{background:rgba(254,226,226,.95);border-color:#f87171;color:#991b1b}
 .exp-strip .exp-l{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
@@ -468,62 +530,76 @@ select.tpsel.auto{animation:tpflash .75s ease-out}
   .g4{grid-template-columns:repeat(2,1fr)}.g3,.g2{grid-template-columns:1fr}
   .preview-scale{transform:scale(.45);transform-origin:top left;width:222%}
 }
-/* ===== TEMA PUTIH BERKACA + BUTANG 3D ===== */
+/* ===== TEMA PROFESIONAL v26 — Navy Diraja #0F2A5C, Biru Diraja #1D4ED8, Cyan #06B6D4 & Amber #F59E0B (kad pepejal, tanpa kabur) ===== */
 @media screen{
-:root{--bg:#f3f6fa;--paper:rgba(255,255,255,.62);--line:rgba(255,255,255,.75);--glass-bd:rgba(15,82,87,.12);
-  --shadow:0 18px 40px -18px rgba(15,60,70,.28),inset 0 1px 0 rgba(255,255,255,.9)}
-html,body{background:#eef3f8}
+:root{--bg:#EAF0F8;--paper:#FFFFFF;--line:#D8E2EF;
+  --shadow:0 10px 30px -12px rgba(15,42,92,.28)}
+html,body{background:#EAF0F8}
 body{background:
-  radial-gradient(900px 600px at 0% 0%,rgba(20,122,114,.16),transparent 60%),
-  radial-gradient(800px 600px at 100% 10%,rgba(201,150,43,.14),transparent 60%),
-  radial-gradient(900px 700px at 50% 100%,rgba(90,140,220,.14),transparent 60%),#f4f7fb;background-attachment:fixed}
-.side{background:rgba(255,255,255,.55)!important;background-image:none!important;color:var(--ink)!important;
-  backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);
-  border-right:1px solid rgba(255,255,255,.8);box-shadow:8px 0 30px -20px rgba(15,60,70,.3)}
+  radial-gradient(900px 600px at 0% 0%,rgba(29,78,216,.10),transparent 60%),
+  radial-gradient(800px 600px at 100% 10%,rgba(245,158,11,.12),transparent 60%),
+  radial-gradient(900px 700px at 50% 100%,rgba(6,182,212,.10),transparent 60%),#EAF0F8;background-attachment:fixed}
+.side{background:linear-gradient(180deg,#0F2A5C 0%,#12336E 55%,#0B1E42 100%)!important;background-image:linear-gradient(180deg,#0F2A5C 0%,#12336E 55%,#0B1E42 100%)!important;color:#EAF2FF!important;
+  border-right:4px solid #F59E0B;box-shadow:8px 0 30px -20px rgba(15,42,92,.5)}
 .side *{color:inherit}
-.logo .mark{color:#fff!important;background:linear-gradient(145deg,#e0b247,#b07f1c);box-shadow:0 6px 0 #8a6312,0 10px 18px -6px rgba(138,99,18,.6),inset 0 1px 0 rgba(255,255,255,.6)}
-.logo b{color:var(--brand)}
-.nav button{color:var(--ink-2)!important;transition:all .18s}
-.nav button:hover{background:rgba(255,255,255,.7)!important;transform:translateX(3px)}
-.nav button.on{background:linear-gradient(180deg,#fff,#eaf3f2)!important;color:var(--brand)!important;
-  box-shadow:0 4px 0 rgba(15,82,87,.18),0 10px 20px -10px rgba(15,82,87,.45),inset 0 1px 0 #fff}
-.side .who{background:rgba(255,255,255,.6)!important;border:1px solid rgba(255,255,255,.9)}
-.card,.modal,.box,.panel{background:rgba(255,255,255,.62)!important;border:1px solid rgba(255,255,255,.85)!important;
-  backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);box-shadow:var(--shadow)}
-input.f,select.f,textarea.f,select.tpsel{background:rgba(255,255,255,.8)!important;border:1px solid var(--glass-bd)!important;
-  box-shadow:inset 0 2px 4px rgba(15,60,70,.08)}
-table.t th{background:linear-gradient(180deg,#1a6f73,#0f5257)!important}
-table.t td{border-bottom:1px solid rgba(15,82,87,.08)}
-table.t tr:hover td{background:rgba(255,255,255,.7)}
-/* Butang 3D */
-.btn{position:relative;border:1px solid rgba(15,82,87,.15)!important;color:var(--ink)!important;
-  background:linear-gradient(180deg,#ffffff 0%,#eef3f6 100%)!important;
-  box-shadow:0 5px 0 #c9d5dc,0 10px 18px -8px rgba(15,60,70,.35),inset 0 1px 0 #fff;
+.logo .mark{color:#0F2A5C!important;background:linear-gradient(145deg,#FDE68A,#F59E0B 55%,#D97706);box-shadow:0 4px 0 #92400E,0 10px 18px -6px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.7)}
+.logo b{color:#fff}
+.logo small{color:#BFDBFE}
+.nav button{color:#C7D8F5!important;transition:all .18s}
+.nav button:hover{background:rgba(255,255,255,.12)!important;transform:translateX(3px)}
+.nav button.on{background:#FFFFFF!important;color:#0F2A5C!important;
+  box-shadow:inset 4px 0 0 #F59E0B,0 10px 20px -10px rgba(0,0,0,.5)}
+.side .who{background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.25);color:#EAF2FF}
+.card,.modal .box,.panel{background:#FFFFFF!important;border:1px solid #D8E2EF!important;box-shadow:var(--shadow)}
+input.f,select.f,textarea.f,select.tpsel{background:#FFFFFF!important;border:1px solid #CBD5E1!important;
+  box-shadow:inset 0 2px 4px rgba(15,42,92,.06)}
+table.t th{background:linear-gradient(180deg,#1D4ED8,#0F2A5C)!important;border-bottom:3px solid #F59E0B}
+table.t td{border-bottom:1px solid #E2E8F0}
+table.t tr:hover td{background:#EFF6FF}
+/* Butang 3D pepejal (tanpa blur) */
+.btn{position:relative;border:1px solid #CBD5E1!important;color:#0F2A5C!important;
+  background:linear-gradient(180deg,#FFFFFF 0%,#EAF0F8 100%)!important;
+  box-shadow:0 4px 0 #CBD5E1,0 10px 18px -8px rgba(15,42,92,.35),inset 0 1px 0 #fff;
   transform:translateY(0);transition:transform .12s ease,box-shadow .12s ease,filter .2s}
 .btn::after{content:"";position:absolute;inset:1px 1px 50% 1px;border-radius:inherit;pointer-events:none;
   background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0))}
 .btn:hover{transform:translateY(-2px);filter:brightness(1.03);
-  box-shadow:0 7px 0 #c9d5dc,0 16px 24px -10px rgba(15,60,70,.4),inset 0 1px 0 #fff}
-.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #c9d5dc,0 4px 8px -4px rgba(15,60,70,.3),inset 0 2px 4px rgba(0,0,0,.08)}
-.btn.pri{color:#fff!important;border-color:#0b4145!important;background:linear-gradient(180deg,#1f8f86 0%,#0f5257 100%)!important;
-  box-shadow:0 5px 0 #083a3d,0 12px 20px -8px rgba(15,82,87,.6),inset 0 1px 0 rgba(255,255,255,.35)}
-.btn.pri:hover{box-shadow:0 7px 0 #083a3d,0 18px 26px -10px rgba(15,82,87,.65),inset 0 1px 0 rgba(255,255,255,.35)}
-.btn.pri:active{box-shadow:0 1px 0 #083a3d,0 4px 8px -4px rgba(15,82,87,.5)}
-.btn.gold{color:#fff!important;border-color:#8a6312!important;background:linear-gradient(180deg,#e6b94d 0%,#b8851f 100%)!important;
-  box-shadow:0 5px 0 #7a560f,0 12px 20px -8px rgba(138,99,18,.6),inset 0 1px 0 rgba(255,255,255,.45)}
-.btn.gold:hover{box-shadow:0 7px 0 #7a560f,0 18px 26px -10px rgba(138,99,18,.6),inset 0 1px 0 rgba(255,255,255,.45)}
-.btn.gold:active{box-shadow:0 1px 0 #7a560f}
-.btn.danger{color:var(--danger)!important;box-shadow:0 5px 0 #e9c4bc,0 10px 18px -8px rgba(180,65,47,.35),inset 0 1px 0 #fff}
-.btn.sm{box-shadow:0 3px 0 #c9d5dc,0 6px 12px -6px rgba(15,60,70,.35),inset 0 1px 0 #fff}
-.btn.sm.pri{box-shadow:0 3px 0 #083a3d,0 6px 12px -6px rgba(15,82,87,.5)}
+  box-shadow:0 6px 0 #CBD5E1,0 16px 24px -10px rgba(15,42,92,.4),inset 0 1px 0 #fff}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #CBD5E1,0 4px 8px -4px rgba(15,42,92,.3),inset 0 2px 4px rgba(0,0,0,.08)}
+.btn.pri{color:#fff!important;border-color:#081736!important;background:linear-gradient(180deg,#2563EB 0%,#0F2A5C 100%)!important;
+  box-shadow:0 4px 0 #081736,0 12px 20px -8px rgba(15,42,92,.6),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn.pri:hover{box-shadow:0 6px 0 #081736,0 18px 26px -10px rgba(15,42,92,.65),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn.pri:active{box-shadow:0 1px 0 #081736,0 4px 8px -4px rgba(15,42,92,.5)}
+.btn.gold{color:#0F2A5C!important;border-color:#92400E!important;background:linear-gradient(180deg,#FCD34D 0%,#F59E0B 100%)!important;
+  box-shadow:0 4px 0 #92400E,0 12px 20px -8px rgba(245,158,11,.6),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn.gold:hover{box-shadow:0 6px 0 #92400E,0 18px 26px -10px rgba(245,158,11,.6),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn.gold:active{box-shadow:0 1px 0 #92400E}
+.btn.danger{color:var(--danger)!important;box-shadow:0 4px 0 #FECACA,0 10px 18px -8px rgba(220,38,38,.35),inset 0 1px 0 #fff}
+.btn.sm{box-shadow:0 3px 0 #CBD5E1,0 6px 12px -6px rgba(15,42,92,.35),inset 0 1px 0 #fff}
+.btn.sm.pri{box-shadow:0 3px 0 #081736,0 6px 12px -6px rgba(15,42,92,.5)}
+.btn.sm.gold{box-shadow:0 3px 0 #92400E,0 6px 12px -6px rgba(245,158,11,.5)}
 .btn.sm:active{transform:translateY(2px)}
 .btn:disabled{transform:none!important;filter:grayscale(.4)}
-.chip{background:rgba(255,255,255,.7)!important;border:1px solid rgba(15,82,87,.15);backdrop-filter:blur(8px)}
+.chip{background:#DBEAFE!important;border:1px solid #BFDBFE;color:#0F2A5C}
+.chip.gold{background:#FEF3C7!important;border-color:#FDE68A;color:#92400E}
+.chip.red{background:#FEE2E2!important;color:#991B1B}
 .tp{box-shadow:0 3px 0 rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.4)}
+/* Kad statistik Papan Pemuka: nombor berwarna + jalur atas berwarna */
+.g4 .stat{border-top:4px solid #1D4ED8}
+.g4 .stat:nth-child(2){border-top-color:#06B6D4}
+.g4 .stat:nth-child(3){border-top-color:#F59E0B}
+.g4 .stat:nth-child(4){border-top-color:#7C3AED}
+.g4 .stat:nth-child(1) .n{color:#1D4ED8}
+.g4 .stat:nth-child(2) .n{color:#0891B2}
+.g4 .stat:nth-child(3) .n{color:#D97706}
+.g4 .stat:nth-child(4) .n{color:#7C3AED}
+.hint{background:#FEF3C7!important;border:1px solid #FDE68A;color:#78350F}
+.top h1{color:#0F2A5C}
+.exp-strip{background:#DBEAFE!important;border-color:#BFDBFE!important;color:#0F2A5C!important}
 }
 /* ===== SKRIN SEGERAK DATA (BOOT) ===== */
 #boot{position:fixed;inset:0;z-index:120;display:grid;place-items:center;overflow:hidden;color:#dff7f3;
-  background:radial-gradient(1200px 800px at 50% 40%,#0e3a3d 0%,#082426 45%,#04131a 100%);
+  background:radial-gradient(1200px 800px at 50% 40%,#1D4ED8 0%,#0F2A5C 45%,#081736 100%);
   font-family:'Plus Jakarta Sans',system-ui,sans-serif;transition:opacity .5s ease,visibility .5s ease}
 #boot.out{opacity:0;visibility:hidden}
 #boot.out .ld-wrap{transform:scale(1.06);filter:blur(2px)}
@@ -546,10 +622,10 @@ table.t tr:hover td{background:rgba(255,255,255,.7)}
 .ld-orb b{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:800;color:#fff;line-height:1;text-shadow:0 0 14px rgba(94,234,212,.9)}
 .ld-orb small{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;color:#9be9dc;margin-top:4px}
 .ld-info{width:min(440px,86vw);text-align:center}
-.ld-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.42em;color:#e8c13a;font-weight:800}
+.ld-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.42em;color:#F59E0B;font-weight:800}
 .ld-msg{font-family:Fraunces,Georgia,serif;font-size:19px;margin:8px 0 14px;color:#fff;min-height:26px;transition:opacity .2s}
 .ld-bar{position:relative;height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(94,234,212,.18)}
-.ld-bar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:linear-gradient(90deg,#147a72,#5eead4,#fff);box-shadow:0 0 14px #5eead4}
+.ld-bar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:linear-gradient(90deg,#1D4ED8,#06B6D4,#F59E0B);box-shadow:0 0 14px #5eead4}
 .ld-bar i:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.35) 0 6px,transparent 6px 14px);animation:barMove .5s linear infinite}
 @keyframes barMove{to{background-position:28px 0}}
 .ld-stats{display:flex;justify-content:space-between;gap:10px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;color:#7fbfb6}
@@ -557,14 +633,14 @@ table.t tr:hover td{background:rgba(255,255,255,.7)}
 .ld-log{margin-top:12px;height:58px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:14.5px;color:rgba(155,233,220,.55);text-align:left;
   mask-image:linear-gradient(transparent,#000 40%);-webkit-mask-image:linear-gradient(transparent,#000 40%)}
 .ld-log div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ld-log span{color:#e8c13a}
+.ld-log span{color:#F59E0B}
 @media (prefers-reduced-motion:reduce){#boot .grid-fx,.ld-ring{animation-duration:6s!important}}
 /* ===== PENUNJUK SEGERAK LATAR ===== */
 .sync{position:fixed;top:0;left:0;right:0;height:3px;z-index:130;pointer-events:none;opacity:0;transition:opacity .3s}
 .sync.show{opacity:1}
-.sync:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,#5eead4,#147a72,#e8c13a,transparent);background-size:50% 100%;background-repeat:no-repeat;animation:syncMove 1s linear infinite}
+.sync:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,#5eead4,#1D4ED8,#F59E0B,transparent);background-size:50% 100%;background-repeat:no-repeat;animation:syncMove 1s linear infinite}
 @keyframes syncMove{from{background-position:-50% 0}to{background-position:150% 0}}
-.sync span{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;font-weight:800;color:var(--brand);background:rgba(255,255,255,.85);backdrop-filter:blur(8px);border:1px solid rgba(15,82,87,.15);padding:5px 10px;border-radius:99px;box-shadow:0 6px 18px -8px rgba(15,60,70,.4)}
+.sync span{position:absolute;top:10px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;font-weight:800;color:var(--brand);background:#FFFFFF;border:1px solid #BFDBFE;padding:5px 10px;border-radius:99px;box-shadow:0 6px 18px -8px rgba(15,60,70,.4)}
 #view.vin>*{animation:vin .32s ease both}
 @keyframes vin{from{opacity:0;transform:translateY(8px)}}
 .hadir-bar{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);z-index:60;display:flex;gap:12px;align-items:center;max-width:min(640px,calc(100vw - 24px));padding:12px 16px;border-radius:14px;background:#fff7e0;color:#5b4300;border:1px solid #f0d27a;box-shadow:0 10px 30px rgba(0,0,0,.15);font-size:13px;line-height:1.4;transition:transform .35s ease;opacity:.98}
@@ -579,7 +655,7 @@ table.t tr:hover td{background:rgba(255,255,255,.7)}
 @keyframes hGrid{to{background-position:0 48px,0 0}}
 .holo .orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;mix-blend-mode:screen;animation:hFloat 14s ease-in-out infinite alternate}
 .holo .o1{width:420px;height:420px;left:-80px;top:-60px;background:conic-gradient(from 0deg,#00e5ff,#7c4dff,#00ffa3,#00e5ff)}
-.holo .o2{width:360px;height:360px;right:-60px;top:30%;background:conic-gradient(from 90deg,#ff3df2,#00e5ff,#ffd166,#ff3df2);animation-duration:18s}
+.holo .o2{width:360px;height:360px;right:-60px;top:30%;background:conic-gradient(from 90deg,#F59E0B,#00e5ff,#ffd166,#F59E0B);animation-duration:18s}
 .holo .o3{width:300px;height:300px;left:30%;bottom:-80px;background:conic-gradient(from 180deg,#00ffa3,#00b4ff,#00ffa3);animation-duration:11s}
 @keyframes hFloat{0%{transform:translate(0,0) rotate(0) scale(1)}100%{transform:translate(60px,40px) rotate(180deg) scale(1.15)}}
 .holo .ring{position:absolute;left:50%;top:50%;border:1px solid rgba(64,240,255,.25);border-radius:50%;transform:translate(-50%,-50%) rotateX(70deg);animation:hSpin 20s linear infinite;box-shadow:0 0 30px rgba(64,240,255,.15) inset}
@@ -590,17 +666,17 @@ table.t tr:hover td{background:rgba(255,255,255,.7)}
 @keyframes hBeam{from{top:-120px}to{top:100%}}
 .holo .pt{position:absolute;width:3px;height:3px;border-radius:50%;background:#7ff6ff;box-shadow:0 0 8px #40f0ff;animation:hPt linear infinite}
 @keyframes hPt{from{transform:translateY(0);opacity:0}10%{opacity:1}to{transform:translateY(-100vh);opacity:0}}
-.authc{position:relative;z-index:2;width:min(440px,92vw);max-height:94vh;overflow:auto;padding:26px 24px;border-radius:22px;color:#e6fbff;background:linear-gradient(160deg,rgba(14,40,56,.72),rgba(6,18,30,.78));backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(64,240,255,.35);box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 20px 60px rgba(0,0,0,.6),0 0 40px rgba(64,240,255,.18);animation:aIn .5s cubic-bezier(.2,.9,.3,1.2)}
-.authc::before{content:"";position:absolute;inset:-1px;border-radius:22px;padding:1px;background:linear-gradient(120deg,#00e5ff,transparent 30%,transparent 70%,#ff3df2);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.8}
+.authc{position:relative;z-index:2;width:min(440px,92vw);max-height:94vh;overflow:auto;padding:26px 24px;border-radius:22px;color:#e6fbff;background:linear-gradient(160deg,#12336E,#081736);border:1px solid #F59E0B;box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 20px 60px rgba(0,0,0,.6),0 0 40px rgba(64,240,255,.18);animation:aIn .5s cubic-bezier(.2,.9,.3,1.2)}
+.authc::before{content:"";position:absolute;inset:-1px;border-radius:22px;padding:1px;background:linear-gradient(120deg,#00e5ff,transparent 30%,transparent 70%,#F59E0B);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.8}
 @keyframes aIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
 .authc .alogo{width:70px;height:70px;margin:0 auto;border-radius:20px;display:grid;place-items:center;font-size:34px;font-weight:900;color:#03121c;background:linear-gradient(135deg,#40f0ff,#00ffa3);box-shadow:0 0 30px rgba(64,240,255,.6);animation:aPulse 3s ease-in-out infinite}
 @keyframes aPulse{50%{box-shadow:0 0 50px rgba(0,255,163,.8)}}
-.authc h2{margin:12px 0 2px;font-size:26px;letter-spacing:1px;background:linear-gradient(90deg,#7ff6ff,#fff,#ff9df8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.authc h2{margin:12px 0 2px;font-size:26px;letter-spacing:1px;background:linear-gradient(90deg,#7ff6ff,#fff,#FBBF24);-webkit-background-clip:text;background-clip:text;color:transparent}
 .authc .sub{margin:0;font-size:12px;color:#8fc9d6;letter-spacing:.5px}
 .authc .l{color:#7ff6ff;font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
 .authc .f{background:rgba(3,15,25,.7)!important;border:1px solid rgba(64,240,255,.25)!important;color:#e6fbff!important;box-shadow:none!important;transition:.2s}.authc .f::placeholder{color:#4f7f8c}
 .authc .f:focus{outline:none;border-color:#40f0ff!important;box-shadow:0 0 0 3px rgba(64,240,255,.2),0 0 18px rgba(64,240,255,.3)}
-.authc .f.ok{border-color:#00ffa3!important}.authc .f.bad{border-color:#ff4d7a!important}
+.authc .f.ok{border-color:#00ffa3!important}.authc .f.bad{border-color:#F59E0B!important}
 .atabs{display:flex;gap:4px;padding:4px;margin:18px 0 14px;border-radius:14px;background:rgba(3,15,25,.6);border:1px solid rgba(64,240,255,.2)}
 .atabs button{flex:1;border:0;padding:10px;border-radius:10px;background:transparent;color:#8fc9d6;font-weight:700;cursor:pointer;transition:.2s}
 .atabs button.on{background:linear-gradient(135deg,#00b4d8,#00c98a);color:#03121c;box-shadow:0 0 18px rgba(64,240,255,.45)}
@@ -2002,7 +2078,7 @@ function reportHTMLSM(s, editable=false){
   const t=T(); const rows=reportRows(s); const M=maxTP();
   const {avg,award}=certStats(s);
   const ini=String(t.NAMA_SEKOLAH||'SMK').split(/\s+/).map(w=>w[0]).join('').slice(0,3);
-  const tpCol=n=>M===3?['','#d9534f','#e8c13a','#147a72'][n]||'#999':['','#d9534f','#ee8a3c','#e8c13a','#8cc152','#3aa57a','#147a72'][n]||'#999';
+  const tpCol=n=>M===3?['','#d9534f','#F59E0B','#1D4ED8'][n]||'#999':['','#d9534f','#ee8a3c','#F59E0B','#8cc152','#3aa57a','#1D4ED8'][n]||'#999';
   const chipsFor=(mp,rec)=>{
     const cs=comps(mp); if(!cs.length||!rec) return '';
     const items=cs.map((c,i)=>({c,v:tpNum(rec['K'+(i+1)])})).filter(x=>x.v);
@@ -2071,7 +2147,7 @@ function kemahiranTafsiran(mp, compName, idx, tpVal, maxT){
 function reportSubjekSM(s, mp, rec, editable=false){
   const t=T(), M=Number(mp.SKALA_TP)||maxTP();
   const tpAll=tpNum(rec&&rec.TP_KESELURUHAN);
-  const tpCol=n=>M===3?['','#d9534f','#e8c13a','#147a72'][n]||'#64748b':['','#d9534f','#ee8a3c','#e8c13a','#8cc152','#3aa57a','#147a72'][n]||'#64748b';
+  const tpCol=n=>M===3?['','#d9534f','#F59E0B','#1D4ED8'][n]||'#64748b':['','#d9534f','#ee8a3c','#F59E0B','#8cc152','#3aa57a','#1D4ED8'][n]||'#64748b';
   const tpLbl=n=>M===3?(TP_LABEL_3[n]||'—'):(TP_LABEL_6[n]||'—');
   const ini=String(t.NAMA_SEKOLAH||'SMK').split(/\s+/).map(w=>w[0]).join('').slice(0,3);
   const cs=comps(mp);
@@ -2249,6 +2325,7 @@ V.laporan = () => {
    ${st.map((x,i)=>`<option value="${x.ID_MURID}" ${x.ID_MURID===S.stuSel?'selected':''}>${i+1}. ${esc(x.NAMA_MURID)}</option>`).join('')}</select><button class="btn sm" onclick="stepStu(1)">▶</button></div>
    <div class="row" style="margin-top:10px">${tab('report',sm?'📄 Laporan Keseluruhan':'📄 Laporan PBD')}${sm?tab('subjek','📚 Pelaporan Setiap Subjek ('+stuRows.length+')'):''}${tab('prof','🕸 Spider Chart')}${tab('cert','🏅 Sijil PBD')}</div>
    ${subBar}
+   ${pg==='cert'?certToolbar():''}
    <p class="lock" style="margin:10px 0 0">${hintTxt}</p></div>
   <div style="overflow:auto"><div class="preview-scale"${(pg==='report'||pg==='subjek')?'':' style="transform-origin:top left"'}>${s?(pg==='subjek'?reportAllSubjekSM(s,true,S.subSel):pg==='prof'?profileHTML(s):pg==='cert'?certHTML(s):reportHTML(s,true)):'<div class="card empty">Tiada murid</div>'}</div></div>`;
   if(pg==='report'||pg==='subjek') fitSheets($('#view'));
@@ -2327,26 +2404,78 @@ function certStats(s){
     : (avg>=5?'CEMERLANG':avg>=4?'KEPUJIAN':avg>=3?'BAIK':'PENGHARGAAN');
   return {rows,tps,avg,award};
 }
-const ORN = (rot,pos) => `<svg class="orn" style="${pos};transform:rotate(${rot}deg)" viewBox="0 0 100 100"><g fill="none" stroke="#b8892a" stroke-width="1.6"><path d="M4 60V4h56"/><path d="M12 44V12h32"/><path d="M4 4l20 20"/><circle cx="24" cy="24" r="5" fill="#d8b25a" stroke="none"/><path d="M30 12c10 0 18 8 18 18M12 30c0 10 8 18 18 18" stroke-width="1"/></g></svg>`;
+const ORN = (rot,pos) => `<svg class="orn" style="${pos};transform:rotate(${rot}deg)" viewBox="0 0 100 100"><g fill="none" stroke="#D97706" stroke-width="1.6"><path d="M4 60V4h56"/><path d="M12 44V12h32"/><path d="M4 4l20 20"/><circle cx="24" cy="24" r="5" fill="#F59E0B" stroke="none"/><path d="M30 12c10 0 18 8 18 18M12 30c0 10 8 18 18 18" stroke-width="1"/></g></svg>`;
 const GUILLOCHE = (()=>{ let p=''; for(let i=0;i<36;i++){ const a=i*10; p+=`<ellipse cx="0" cy="0" rx="62" ry="22" transform="rotate(${a})"/>`; }
   return `<svg class="bgpat" viewBox="0 0 297 210" preserveAspectRatio="xMidYMid slice"><defs><pattern id="gp" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M0 7Q3.5 0 7 7T14 7" fill="none" stroke="#e9dcb8" stroke-width=".35"/></pattern></defs><rect width="297" height="210" fill="url(#gp)"/><g transform="translate(148.5 112)" fill="none" stroke="#e6d5a6" stroke-width=".25" opacity=".9">${p}</g></svg>`; })();
-function sealSVG(t,award){
+function sealSVG(t,award,dark){
+  dark=dark||'#0F2A5C';
   let teeth=''; for(let i=0;i<48;i++){const a=i*7.5*Math.PI/180, r=i%2?47:50; teeth+=`${50+r*Math.cos(a)},${50+r*Math.sin(a)} `;}
-  return `<svg class="seal" viewBox="0 0 100 100"><defs><linearGradient id="gf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8e3a0"/><stop offset=".45" stop-color="#c9962b"/><stop offset="1" stop-color="#7d5a12"/></linearGradient>
+  return `<svg class="seal" viewBox="0 0 100 100"><defs><linearGradient id="gf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8e3a0"/><stop offset=".45" stop-color="#F59E0B"/><stop offset="1" stop-color="#7d5a12"/></linearGradient>
    <path id="arc" d="M50 50m-33 0a33 33 0 1 1 66 0a33 33 0 1 1 -66 0"/></defs>
-   <polygon points="${teeth}" fill="url(#gf)"/><circle cx="50" cy="50" r="40" fill="#0b3d40" stroke="#f3d78a" stroke-width="1.4"/><circle cx="50" cy="50" r="27" fill="none" stroke="#f3d78a" stroke-width=".6" stroke-dasharray="1 1.6"/>
+   <polygon points="${teeth}" fill="url(#gf)"/><circle cx="50" cy="50" r="40" fill="${dark}" stroke="#f3d78a" stroke-width="1.4"/><circle cx="50" cy="50" r="27" fill="none" stroke="#f3d78a" stroke-width=".6" stroke-dasharray="1 1.6"/>
    <text font-size="6.2" font-weight="800" letter-spacing="2.4" fill="#f3d78a" font-family="Plus Jakarta Sans"><textPath href="#arc" startOffset="0">★ PENTAKSIRAN BILIK DARJAH ★ ${esc(t.SESI||'')} </textPath></text>
    <text x="50" y="47" text-anchor="middle" font-family="Fraunces" font-weight="900" font-size="14" fill="#fff">PBD</text>
    <text x="50" y="58" text-anchor="middle" font-size="5.6" font-weight="800" letter-spacing="1" fill="#f3d78a" font-family="Plus Jakarta Sans">${award}</text></svg>`;
 }
+/* ---------- Templat sijil v26 ---------- */
+const TEMPLAT_SIJIL = {
+  '1':{nama:'Diraja Moden', desc:'Navy + emas, bingkai berganda'},
+  '2':{nama:'Ijazah Klasik', desc:'Parchment, burgundi & emas'},
+  '3':{nama:'Moden Prestij', desc:'Navy + biru diraja + cyan'}
+};
+function certTemplate(){
+  try{ const ls=localStorage.getItem('epbd_templat_sijil'); if(ls&&TEMPLAT_SIJIL[ls]) return ls; }catch(e){}
+  let v='1'; try{ const tt=(S.data&&S.data.tetapan)||{}; v=String(tt.TEMPLAT_SIJIL||'1').trim(); }catch(e){}
+  return TEMPLAT_SIJIL[v]?v:'1';
+}
+function certLogo(kunci){
+  const t=(S.data&&S.data.tetapan)||{};
+  const dariSheet = kunci==='2' ? t.LOGO_URL_2 : t.LOGO_URL;
+  if(dariSheet) return dariSheet;
+  try{ const ls=localStorage.getItem(kunci==='2'?'epbd_logo2_url':'epbd_logo_url'); if(ls) return ls; }catch(e){}
+  return '';
+}
+function certLogosHTML(){
+  const l1=certLogo('1'), l2=certLogo('2');
+  if(l1&&l2) return `<div class="cert-logos"><img class="logo-img" src="${esc(l1)}"><img class="logo-img logo-img2" src="${esc(l2)}"></div>`;
+  if(l1||l2) return `<img class="logo-img" src="${esc(l1||l2)}">`;
+  return '';
+}
+function certToolbar(){
+  const tpl=certTemplate();
+  const btn=(v,ico)=>`<button type="button" class="tpl-btn ${tpl===v?'on':''}" onclick="setTemplatSijil('${v}',this)">${ico} ${v}. ${TEMPLAT_SIJIL[v].nama}</button>`;
+  return `<div class="cert-bar"><span style="font-weight:800;color:#0F2A5C">🎓 Templat Sijil:</span>
+   ${btn('1','👑')}${btn('2','🎓')}${btn('3','💎')}
+   <span class="sp"></span>
+   <input type="file" accept="image/*" id="certLogoFile" onchange="pickLogoSijil(this)" style="display:none">
+   <button type="button" class="btn sm pri" onclick="$('#certLogoFile').click()">🖼 Tukar Logo Sijil</button>
+   <span class="lock">Templat & logo dipakai pada sijil ini dan pada PDF/cetakan. Pilihan disimpan ke Tetapan.</span></div>`;
+}
+async function setTemplatSijil(v, el){
+  try{ localStorage.setItem('epbd_templat_sijil', v); }catch(e){}
+  document.querySelectorAll('.cert-bar .tpl-btn').forEach(b=>b.classList.toggle('on', b===el));
+  render();
+  if(isAdmin()){
+    try{ await api('saveTetapan',{data:{TEMPLAT_SIJIL:v}}); toast('Templat sijil disimpan: '+TEMPLAT_SIJIL[v].nama+' ✓'); }
+    catch(e){ toast('Templat ditukar untuk pratonton ini — tekan Simpan Tetapan untuk kekalkan. ('+e.message+')', true); }
+  } else {
+    toast('Templat ditukar untuk pratonton ini. Log masuk sebagai admin untuk simpan kekal.');
+  }
+}
 function certHTML(s){
+  const tpl=certTemplate();
+  if(tpl==='2') return certHTML_T2(s);
+  if(tpl==='3') return certHTML_T3(s);
+  return certHTML_T1(s);
+}
+function certHTML_T1(s){
   const t=T(); const {rows,award}=certStats(s); const half=Math.ceil(rows.length/2);
   const cell=r=>r?`<td>${esc(titleCase(r.mp.NAMA_MATA_PELAJARAN))}</td><td class="c"><span>TP ${tpNum(r.rec.TP_KESELURUHAN)}</span></td>`:'<td></td><td></td>';
-  return `<div class="cert${isMenengah()?' cert-sm':''}">${GUILLOCHE}<div class="band"></div><div class="fr"></div>
+  return `<div class="cert cert-t1${isMenengah()?' cert-sm':''}">${GUILLOCHE}<div class="band"></div><div class="fr"></div>
    ${ORN(0,'left:13mm;top:13mm')}${ORN(90,'right:13mm;top:13mm')}${ORN(180,'right:13mm;bottom:13mm')}${ORN(270,'left:13mm;bottom:13mm')}
-   ${t.LOGO_URL?`<img class="wm" src="${esc(t.LOGO_URL)}">`:''}${sealSVG(t,award)}
+   ${certLogo('1')?`<img class="wm" src="${esc(certLogo('1'))}">`:''}${sealSVG(t,award,'#0F2A5C')}
    <div class="in">
-    ${t.LOGO_URL?`<img class="logo-img" src="${esc(t.LOGO_URL)}">`:''}
+    ${certLogosHTML()}
     <div class="sch">${esc(t.NAMA_SEKOLAH)}</div><div class="addr">${esc(t.ALAMAT_SEKOLAH)}</div>
     <div class="ttl">${esc(t.TAJUK_SIJIL||'SIJIL PENTAKSIRAN BILIK DARJAH')}</div>
     <div class="sub">${esc(t.PELAPORAN)} • ${esc(t.SESI||'')}</div>
@@ -2359,6 +2488,28 @@ function certHTML(s){
    <div class="serial">NO. SIJIL: PBD-${esc(t.SESI||'')}-${esc(String(s.ID_MURID||'').toUpperCase())}</div>
   </div>`;
 }
+function certBody(s, tpl, dark){
+  const t=T(); const {rows,award}=certStats(s); const half=Math.ceil(rows.length/2);
+  const cell=r=>r?`<td>${esc(titleCase(r.mp.NAMA_MATA_PELAJARAN))}</td><td class="c"><span>TP ${tpNum(r.rec.TP_KESELURUHAN)}</span></td>`:'<td></td><td></td>';
+  return `<div class="cert cert-t${tpl}${isMenengah()?' cert-sm':''}">${GUILLOCHE}<div class="topband"></div><div class="band"></div><div class="fr"></div>
+   ${ORN(0,'left:13mm;top:19mm')}${ORN(90,'right:13mm;top:19mm')}${ORN(180,'right:13mm;bottom:13mm')}${ORN(270,'left:13mm;bottom:13mm')}
+   ${certLogo('1')?`<img class="wm" src="${esc(certLogo('1'))}">`:''}${sealSVG(t,award,dark)}
+   <div class="in">
+    ${certLogosHTML()}
+    <div class="sch">${esc(t.NAMA_SEKOLAH)}</div><div class="addr">${esc(t.ALAMAT_SEKOLAH)}</div>
+    <div class="ttl">${esc(t.TAJUK_SIJIL||'SIJIL PENTAKSIRAN BILIK DARJAH')}</div>
+    <div class="sub">${esc(t.PELAPORAN)} • ${esc(t.SESI||'')}</div>
+    <div class="txt" style="margin-top:3mm;font-style:italic">Dengan ini disahkan bahawa</div>
+    <div class="nm" style="font-size:${tpl==='2'?(String(s.NAMA_MURID||"").length>40?44:54):(String(s.NAMA_MURID||"").length>40?36:42)}px;white-space:nowrap;max-width:none">${esc(titleCase(s.NAMA_MURID))}</div>
+    <div class="txt" style="margin-top:2mm">${isMenengah()?'No. Kad Pengenalan':'No. MyKid'}: <b>${esc(s.NO_MYKID)}</b> &nbsp;•&nbsp; Kelas: <b>${isMenengah()?esc(t.KELAS)+' ('+esc(tahapLabel(tahapAktif()))+')':esc(t.TAHUN?('Tahun '+t.TAHUN+' '):'')+esc(t.KELAS)}</b><br>telah mengikuti Pentaksiran Bilik Darjah ${isMenengah()?'(KSSMPK) ':''}dan mencapai tahap penguasaan berikut dengan pengiktirafan <span class="award">${award}</span></div>
+    <table>${Array.from({length:half},(_,i)=>`<tr>${cell(rows[i])}<td class="gap"></td>${cell(rows[i+half])}</tr>`).join('')}</table>
+   </div>
+   <div class="sigs"><div class="s"><b>${esc(t.NAMA_GURU_BESAR)}</b><br>${esc(t.JAWATAN_PENTADBIR||(isMenengah()?'PENGETUA':'GURU BESAR'))}</div><div class="mid">TARIKH<b>${fmtDate(t.TARIKH_PELAPORAN)}</b></div><div class="s"><b>${esc(t.NAMA_GURU_KELAS)}</b><br>GURU KELAS</div></div>
+   <div class="serial">NO. SIJIL: PBD-${esc(t.SESI||'')}-${esc(String(s.ID_MURID||'').toUpperCase())}</div>
+  </div>`;
+}
+function certHTML_T2(s){ return certBody(s,'2','#7F1D2D'); }
+function certHTML_T3(s){ return certBody(s,'3','#0F2A5C'); }
 const SUBJ_COLORS=['#2563eb','#e11d48','#f59e0b','#10b981','#8b5cf6','#0891b2','#ea580c','#db2777','#65a30d','#0f766e','#7c3aed','#ca8a04'];
 const subjColor=i=>SUBJ_COLORS[i%SUBJ_COLORS.length];
 function radarSVG(rows){
@@ -2382,11 +2533,11 @@ function radarSVG(rows){
   const vals=rows.map(r=>tpNum(r.rec.TP_KESELURUHAN));
   let g='';
   // cincin skala
-  for(let l=max;l>=1;l--){ g+=`<polygon points="${rows.map((_,i)=>pt(i,l).join(',')).join(' ')}" fill="${l%2?'#f6faf9':'#fff'}" stroke="${l===max?'#0f5257':'#c9dbd9'}" stroke-width="${l===max?1.6:1}" ${l===max?'':'stroke-dasharray="2 4"'}/>`; }
+  for(let l=max;l>=1;l--){ g+=`<polygon points="${rows.map((_,i)=>pt(i,l).join(',')).join(' ')}" fill="${l%2?'#f6faf9':'#fff'}" stroke="${l===max?'#0F2A5C':'#c9dbd9'}" stroke-width="${l===max?1.6:1}" ${l===max?'':'stroke-dasharray="2 4"'}/>`; }
   // jejari berwarna lembut
   rows.forEach((_,i)=>{const [x,y]=pt(i,max); g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${subjColor(i)}" stroke-opacity=".35" stroke-width="1.2"/>`;});
   // label skala
-  for(let l=1;l<=max;l++){ const [x,y]=pt(0,l); g+=`<rect x="${x+5}" y="${y-8}" width="16" height="14" rx="3" fill="#0f5257"/><text x="${x+13}" y="${y+3}" text-anchor="middle" font-size="10" fill="#fff" font-weight="800" font-family="JetBrains Mono,monospace">${l}</text>`; }
+  for(let l=1;l<=max;l++){ const [x,y]=pt(0,l); g+=`<rect x="${x+5}" y="${y-8}" width="16" height="14" rx="3" fill="#0F2A5C"/><text x="${x+13}" y="${y+3}" text-anchor="middle" font-size="10" fill="#fff" font-weight="800" font-family="JetBrains Mono,monospace">${l}</text>`; }
   // segmen berwarna mengikut subjek (kawasan poligon dibahagi)
   const P=vals.map((v,i)=>pt(i,v));
   const mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
@@ -2394,13 +2545,13 @@ function radarSVG(rows){
     g+=`<polygon points="${cx},${cy} ${m1.join(',')} ${p.join(',')} ${m2.join(',')}" fill="${subjColor(i)}" fill-opacity=".30" stroke="none"/>`; });
   // purata
   const avgc=vals.reduce((a,b)=>a+b,0)/n;
-  g+=`<polygon points="${rows.map((_,i)=>pt(i,avgc).join(',')).join(' ')}" fill="none" stroke="#c9962b" stroke-width="1.6" stroke-dasharray="6 5"/>`;
+  g+=`<polygon points="${rows.map((_,i)=>pt(i,avgc).join(',')).join(' ')}" fill="none" stroke="#F59E0B" stroke-width="1.6" stroke-dasharray="6 5"/>`;
   // garis luar
-  g+=`<polygon points="${P.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#0b3d40" stroke-width="2.4" stroke-linejoin="round"/>`;
+  g+=`<polygon points="${P.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#0F2A5C" stroke-width="2.4" stroke-linejoin="round"/>`;
   // garis jejari ke nilai + titik
   P.forEach((p,i)=>{ g+=`<line x1="${cx}" y1="${cy}" x2="${p[0]}" y2="${p[1]}" stroke="${subjColor(i)}" stroke-width="3" stroke-linecap="round"/>`; });
   P.forEach((p,i)=>{ g+=`<circle cx="${p[0]}" cy="${p[1]}" r="11" fill="#fff" stroke="${subjColor(i)}" stroke-width="3"/><text x="${p[0]}" y="${p[1]+4}" text-anchor="middle" font-size="11" font-weight="900" fill="${subjColor(i)}" font-family="JetBrains Mono,monospace">${vals[i]}</text>`; });
-  g+=`<circle cx="${cx}" cy="${cy}" r="4" fill="#0b3d40"/>`;
+  g+=`<circle cx="${cx}" cy="${cy}" r="4" fill="#0F2A5C"/>`;
   // label
   rows.forEach((r,i)=>{const a=ang(i); const x=cx+(R+34)*Math.cos(a), y=cy+(R+34)*Math.sin(a);
     const anc=Math.abs(Math.cos(a))<.25?'middle':Math.cos(a)>0?'start':'end';
@@ -2501,7 +2652,7 @@ V.analisis = () => {
   ${dist.map(({m,d,dl,dp})=>{const M=maxTP(), dm=d.slice(0,M), tot=dm.reduce((a,b)=>a+b,0), min=dm.slice(M===3?1:2).reduce((a,b)=>a+b,0); return `<tr><td><b>${esc(m.NAMA_MATA_PELAJARAN)}</b></td>${dm.map((x,i)=>`<td>${x?`<b>${x}</b> <span class="lock">(${dl[i]}/${dp[i]})</span>`:'<span class="lock">0</span>'}</td>`).join('')}<td><b>${tot}</b></td><td>${tot?Math.round(min/tot*100)+'%':'–'}</td></tr>`}).join('')}</tbody></table></div></div>
   <div class="card" style="margin-top:16px"><h3 style="margin-top:0">Matriks TP Keseluruhan murid</h3><div class="tw"><table class="t"><thead><tr><th>Bil</th><th>Nama</th>${mps.map(m=>`<th title="${esc(m.NAMA_MATA_PELAJARAN)}">${esc(m.KOD_MP)}</th>`).join('')}<th>Purata</th></tr></thead><tbody>
   ${st.map((s,i)=>{const v=mps.map(m=>tpNum((mk(s.ID_MURID,m.KOD_MP)||{}).TP_KESELURUHAN)); const f=v.filter(Boolean); return `<tr><td>${i+1}</td><td>${esc(s.NAMA_RINGKAS||s.NAMA_MURID)}</td>${v.map(x=>`<td>${tpBadge(x)}</td>`).join('')}<td><b>${f.length?(f.reduce((a,b)=>a+b,0)/f.length).toFixed(1):'–'}</b></td></tr>`}).join('')}</tbody></table></div></div>`;
-  if(window.Chart){ const C=['#d9534f','#ee8a3c','#e8c13a','#8cc152','#3aa57a','#147a72'];
+  if(window.Chart){ const C=['#d9534f','#ee8a3c','#F59E0B','#8cc152','#3aa57a','#1D4ED8'];
     S.charts.push(new Chart($('#chA'),{type:'bar',data:{labels:mps.map(m=>m.KOD_MP),datasets:[0,1,2,3,4,5].map(i=>({label:'TP'+(i+1),data:dist.map(x=>x.d[i]),backgroundColor:C[i]}))},options:{responsive:true,scales:{x:{stacked:true},y:{stacked:true,ticks:{precision:0}}},plugins:{tooltip:{callbacks:{title:it=>mps[it[0].dataIndex].NAMA_MATA_PELAJARAN}}}}})); }
 };
 function exportCSV(){
@@ -2577,7 +2728,7 @@ V.panduan = () => {
   <div class="card" style="margin-top:16px"><h3 style="margin-top:0">Cara guna aplikasi ini</h3><ol style="line-height:1.8">
    <li>Daftar akaun guru (nama, emel, kata laluan, no telefon & kod sekolah). Setiap guru menggunakan aplikasi mengikut <b>kod sekolah</b> masing-masing.</li><li>Log masuk menggunakan <b>emel</b> dan <b>kata laluan</b> yang didaftarkan.</li><li>Lengkapkan <b>Tetapan</b> (sekolah, guru, pelaporan, tarikh).</li>
    <li>Tambah/kemaskini <b>Senarai Murid</b> dan <b>Mata Pelajaran</b>.</li><li>Isi <b>Rekod Prestasi</b> setiap mata pelajaran dan <b>Ulasan Guru Kelas</b>.</li>
-   <li>Cetak <b>Laporan Murid</b> — setiap murid mendapat Laporan PBD, Spider Chart dan Sijil PBD sekali gus (satu murid atau semua sekali). Pilih "Save as PDF" untuk simpan PDF.</li><li><b>Tafsiran TP</b> diselaraskan oleh Master Admin sahaja.</li></ol>
+   <li>Cetak <b>Laporan Murid</b> — setiap murid mendapat Laporan PBD, Spider Chart dan Sijil PBD sekali gus (satu murid atau semua sekali). Pilih "Save as PDF" untuk simpan PDF.</li><li>Pilih <b>templat sijil</b> — 3 gaya ijazah moden (Diraja Moden, Ijazah Klasik, Moden Prestij) — dan <b>tukar logo sijil</b> di <b>Tetapan</b>, atau terus di tab <b>Sijil PBD</b> dalam Laporan Murid.</li><li><b>Tafsiran TP</b> diselaraskan oleh Master Admin sahaja.</li></ol>
    <div class="hint">Lupa kata laluan atau ada sebarang pertanyaan? <span style="display:inline-block;margin-top:6px">${helpWA()}</span></div></div>`;
 };
 
@@ -2593,26 +2744,64 @@ V.tetapan = () => {
    ${F('TARIKH_PELAPORAN','Tarikh pelaporan','date')}
    <div><label class="l">Jenis sekolah</label><select class="f" id="s_JENIS_SEKOLAH" ${dis}>${(isMenengah()?['SEK MEN KEB (SMK) PPKI','SEK MEN PENDIDIKAN KHAS','INKLUSIF MENENGAH']:['SEK KEB (SK)','SEK JENIS KEB (SJK)','PENDIDIKAN KHAS','INKLUSIF']).map(o=>`<option ${t.JENIS_SEKOLAH===o?'selected':''}>${o}</option>`).join('')}</select></div>
    <div><label class="l">Bahasa laporan</label><select class="f" id="s_BAHASA_LAPORAN" ${dis}>${['SK','SJKC','SJKT'].map(o=>`<option ${lang()===o?'selected':''}>${o}</option>`).join('')}</select></div>
-   ${F('TAHUN',isMenengah()?'Tingkatan / Aliran':'Tahun')}<div><label class="l">Tahap kelas ini (mata pelajaran & pentaksiran)</label><select class="f" id="s_TAHAP" ${dis}>${isMenengah()?[['KR','Kefungsian Rendah (TP 1–3)'],['T1','Tingkatan 1 (TP 1–6)'],['T2','Tingkatan 2 (TP 1–6)'],['T3','Tingkatan 3 (TP 1–6)'],['T4','Tingkatan 4 (TP 1–6)'],['T5','Tingkatan 5 (TP 1–6)']].map(([v,l])=>`<option value="${v}" ${tahapAktif()===v?'selected':''}>${l}</option>`).join(''):['1','2'].map(o=>`<option value="${o}" ${tahapAktif()===o?'selected':''}>Tahap ${o} (Tahun ${o==='1'?'1–3':'4–6'})</option>`).join('')}</select></div>${F('SESI','Sesi')}${F('TAJUK_SIJIL','Tajuk sijil')}<div><label class="l">Logo sekolah (dipaparkan pada sijil)</label><input type="hidden" id="s_LOGO_URL" value="${esc(t.LOGO_URL)}">
+   ${F('TAHUN',isMenengah()?'Tingkatan / Aliran':'Tahun')}<div><label class="l">Tahap kelas ini (mata pelajaran & pentaksiran)</label><select class="f" id="s_TAHAP" ${dis}>${isMenengah()?[['KR','Kefungsian Rendah (TP 1–3)'],['T1','Tingkatan 1 (TP 1–6)'],['T2','Tingkatan 2 (TP 1–6)'],['T3','Tingkatan 3 (TP 1–6)'],['T4','Tingkatan 4 (TP 1–6)'],['T5','Tingkatan 5 (TP 1–6)']].map(([v,l])=>`<option value="${v}" ${tahapAktif()===v?'selected':''}>${l}</option>`).join(''):['1','2'].map(o=>`<option value="${o}" ${tahapAktif()===o?'selected':''}>Tahap ${o} (Tahun ${o==='1'?'1–3':'4–6'})</option>`).join('')}</select></div>${F('SESI','Sesi')}${F('TAJUK_SIJIL','Tajuk sijil')}
+   <div style="grid-column:1/-1"><label class="l">🎓 Templat sijil — pilih 1 daripada 3 gaya ijazah moden</label><input type="hidden" id="s_TEMPLAT_SIJIL" value="${esc(String(t.TEMPLAT_SIJIL||'1'))}">
+    <div class="tpl-picker">
+     <button type="button" class="tpl-card t1 ${String(t.TEMPLAT_SIJIL||'1')==='1'?'on':''}" data-v="1" ${dis} onclick="pickTemplat('1',this)"><span class="mini"></span><b>1. Diraja Moden 👑</b><small>Navy + emas, bingkai berganda, mohor emas — gaya diraja yang kemas.</small></button>
+     <button type="button" class="tpl-card t2 ${String(t.TEMPLAT_SIJIL||'1')==='2'?'on':''}" data-v="2" ${dis} onclick="pickTemplat('2',this)"><span class="mini"></span><b>2. Ijazah Klasik 🎓</b><small>Parchment krim, jalur burgundi & emas, nama skrip besar — paling dekat dengan sijil universiti.</small></button>
+     <button type="button" class="tpl-card t3 ${String(t.TEMPLAT_SIJIL||'1')==='3'?'on':''}" data-v="3" ${dis} onclick="pickTemplat('3',this)"><span class="mini"></span><b>3. Moden Prestij 💎</b><small>Navy + biru diraja + cyan, nama huruf besar — bersih, moden dan korporat.</small></button>
+    </div>
+    <div class="hint" style="margin-top:8px">Templat dipakai pada semua sijil murid, termasuk PDF/cetakan. Tekan <b>Simpan Tetapan</b> selepas memilih. Boleh juga tukar terus di tab <b>Sijil PBD</b> dalam Laporan Murid.</div></div>
+   <div><label class="l">Logo utama — logo sekolah (dipaparkan pada sijil)</label><input type="hidden" id="s_LOGO_URL" value="${esc(t.LOGO_URL)}">
     <div class="logo-up"><div class="pv" id="logoPv">${t.LOGO_URL?`<img src="${esc(t.LOGO_URL)}">`:'Tiada logo'}</div><div style="flex:1">
     ${isAdmin()?`<input type="file" accept="image/*" id="logoFile" onchange="pickLogo(this)" style="display:none"><button class="btn sm pri" type="button" onclick="$('#logoFile').click()">⬆ Muat naik logo</button> <button class="btn sm" type="button" onclick="setLogo('')">✕ Buang</button><div class="hint" style="font-size:12px;margin-top:6px">PNG/JPG. Logo diperkecil automatik. Tekan <b>Simpan Tetapan</b> selepas muat naik.</div>`:'<div class="hint">Log masuk untuk muat naik logo.</div>'}</div></div></div>
+   <div><label class="l">Logo kedua — pilihan (cth. logo KPM / JPN, dipapar sebelah logo sekolah)</label><input type="hidden" id="s_LOGO_URL_2" value="${esc(t.LOGO_URL_2)}">
+    <div class="logo-up"><div class="pv" id="logoPv2">${t.LOGO_URL_2?`<img src="${esc(t.LOGO_URL_2)}">`:'Tiada logo'}</div><div style="flex:1">
+    ${isAdmin()?`<input type="file" accept="image/*" id="logoFile2" onchange="pickLogo2(this)" style="display:none"><button class="btn sm pri" type="button" onclick="$('#logoFile2').click()">⬆ Muat naik logo kedua</button> <button class="btn sm" type="button" onclick="setLogo2('')">✕ Buang</button><div class="hint" style="font-size:12px;margin-top:6px">Pilihan — kosongkan jika sijil hanya guna satu logo. Tekan <b>Simpan Tetapan</b> selepas muat naik.</div>`:'<div class="hint">Log masuk untuk muat naik logo.</div>'}</div></div></div>
    ${isAdmin()&&!isMaster()?`<div><label class="l">Kata laluan akaun anda yang baharu (kosong = kekal)</label><input class="f" type="password" id="s_ADMIN_PASSWORD"></div>`:''}
   </div></div>`;
 };
 function pickPel(b){ $('#s_PELAPORAN').value=b.dataset.v; document.querySelectorAll('.pl-opt').forEach(x=>x.classList.toggle('pri',x===b)); }
-function setLogo(url){ $('#s_LOGO_URL').value=url; $('#logoPv').innerHTML=url?`<img src="${url}">`:'Tiada logo'; }
-function pickLogo(inp){
-  const f=inp.files[0]; if(!f) return;
+function setLogo(url){ $('#s_LOGO_URL').value=url; $('#logoPv').innerHTML=url?`<img src="${url}">`:'Tiada logo'; try{ localStorage.setItem('epbd_logo_url', url); }catch(e){} }
+function pickTemplat(v, el){
+  const hid=$('#s_TEMPLAT_SIJIL'); if(hid) hid.value=v;
+  try{ localStorage.setItem('epbd_templat_sijil', v); }catch(e){}
+  document.querySelectorAll('.tpl-card').forEach(x=>x.classList.toggle('on', x===el || x.dataset.v===v));
+  toast('Templat sijil dipilih: '+TEMPLAT_SIJIL[v].nama+' — tekan Simpan Tetapan ✓');
+}
+function compressLogo(file, cb){
   const rd=new FileReader(); rd.onload=()=>{ const im=new Image(); im.onload=()=>{
     let size=360, out='';
     for(let k=0;k<8;k++){ const sc=Math.min(1,size/Math.max(im.width,im.height)); const c=document.createElement('canvas'); c.width=Math.round(im.width*sc); c.height=Math.round(im.height*sc);
       c.getContext('2d').drawImage(im,0,0,c.width,c.height); out=c.toDataURL('image/png'); if(out.length>45000) out=c.toDataURL('image/webp',.85); if(out.length<=45000) break; size=Math.round(size*.8); }
     if(out.length>48000){ toast('Logo terlalu besar, cuba imej lain',true); return; }
-    setLogo(out); toast('Logo dimuat naik — tekan Simpan Tetapan ✓');
-  }; im.src=rd.result; }; rd.readAsDataURL(f);
+    cb(out);
+  }; im.src=rd.result; }; rd.readAsDataURL(file);
+}
+function pickLogo(inp){
+  const f=inp.files[0]; if(!f) return;
+  compressLogo(f, out=>{ setLogo(out); toast('Logo dimuat naik — tekan Simpan Tetapan ✓'); });
+}
+function setLogo2(url){ const h=$('#s_LOGO_URL_2'); if(h) h.value=url; const pv=$('#logoPv2'); if(pv) pv.innerHTML=url?`<img src="${url}">`:'Tiada logo'; try{ localStorage.setItem('epbd_logo2_url', url); }catch(e){} }
+function pickLogo2(inp){
+  const f=inp.files[0]; if(!f) return;
+  compressLogo(f, out=>{ setLogo2(out); toast('Logo kedua dimuat naik — tekan Simpan Tetapan ✓'); });
+}
+async function pickLogoSijil(inp){
+  const f=inp.files[0]; if(!f) return;
+  compressLogo(f, async out=>{
+    try{ localStorage.setItem('epbd_logo_url', out); }catch(e){}
+    render();
+    if(isAdmin()){
+      try{ await api('saveTetapan',{data:{LOGO_URL:out}}); toast('Logo sijil ditukar & disimpan ✓'); }
+      catch(e){ toast('Logo ditukar untuk pratonton ini — tekan Simpan Tetapan untuk kekalkan. ('+e.message+')', true); }
+    } else {
+      toast('Logo ditukar untuk pratonton ini. Log masuk sebagai admin untuk simpan kekal.');
+    }
+  });
 }
 function saveSet(btn){
-  const keys=['NAMA_SEKOLAH','ALAMAT_SEKOLAH','NAMA_GURU_KELAS','KELAS','NAMA_GURU_BESAR','JAWATAN_PENTADBIR','PELAPORAN','TARIKH_PELAPORAN','JENIS_SEKOLAH','BAHASA_LAPORAN','TAHUN','TAHAP','SESI','TAJUK_SIJIL','LOGO_URL','ADMIN_PASSWORD'];
+  const keys=['NAMA_SEKOLAH','ALAMAT_SEKOLAH','NAMA_GURU_KELAS','KELAS','NAMA_GURU_BESAR','JAWATAN_PENTADBIR','PELAPORAN','TARIKH_PELAPORAN','JENIS_SEKOLAH','BAHASA_LAPORAN','TAHUN','TAHAP','SESI','TAJUK_SIJIL','TEMPLAT_SIJIL','LOGO_URL','LOGO_URL_2','ADMIN_PASSWORD'];
   const d={}; keys.forEach(k=>{const el=$('#s_'+k); if(el) d[k]=el.value.trim();});
   const newPw=d.ADMIN_PASSWORD; if(!newPw) delete d.ADMIN_PASSWORD;
   run(btn,async()=>{ await api('saveTetapan',{data:d}); },'Tetapan disimpan ✓');
