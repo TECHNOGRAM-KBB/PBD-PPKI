@@ -5,7 +5,7 @@
 /* ===== URL WEB APP GOOGLE APPS SCRIPT =====
    Tampal URL Web App (berakhir dengan /exec) DI ANTARA tanda petikan " " di bawah.
    Boleh tampal URL biasa (https://script.google.com/...) — TIDAK perlu atob / tukar kod. */
-var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxQgFTlpge1ugPk5P_aUlxgirltunY3Fcxx8wRyF76Z5bem7xXYsa5EL8KnCP-bbM8Z0Q/exec";
+var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvAYW4rKwrNzZbkkH27Wj6mGXTjS6eKCA4yQDohB1ap3Lz4LjMDskfJZtvtMISi5MQmg/exec";
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1859,7 +1859,7 @@ V.markah = () => {
   $('#view').innerHTML = head('Rekod Prestasi Murid','Isi TP bagi setiap bidang/komponen — TP keseluruhan dikira sendiri daripada purata bidang, dan masih boleh anda tukar.', isAdmin()?`<button class="btn pri" onclick="saveMarkah(this)">💾 Simpan Rekod</button>`:'')+lockNote()+
   `<div class="card" style="margin-bottom:16px"><div class="row"><div style="min-width:280px;flex:1"><label class="l">Mata pelajaran</label><select class="f" onchange="S.mpSel=this.value;render()">
    ${mps.map(m=>`<option value="${m.KOD_MP}" ${m.KOD_MP===S.mpSel?'selected':''}>${esc(m.NAMA_MATA_PELAJARAN)}${String(m.AKTIF).toUpperCase()==='Y'?'':' (tidak aktif)'}</option>`).join('')}</select></div>
-   <div><label class="l">Guru mata pelajaran</label><b>${esc(mp&&mp.NAMA_GURU_MP||'—')}</b></div>
+   ${isAdmin()?`<div style="min-width:300px"><label class="l">Guru mata pelajaran — kelas ${esc(T().KELAS||'ini')} sahaja ✎</label><div class="row" style="flex-wrap:nowrap"><input class="f" id="mpGuruNama" value="${esc(mp&&mp.NAMA_GURU_MP||'')}" placeholder="Nama guru mata pelajaran" ${UP}><button class="btn sm pri" type="button" onclick="saveGuruMp(this)">💾 Simpan</button></div><div class="lock" style="margin-top:4px">Nama ini hanya untuk kelas ini. Kelas lain yang mengajar mata pelajaran sama boleh guna guru berbeza.</div></div>`:`<div><label class="l">Guru mata pelajaran</label><b>${esc(mp&&mp.NAMA_GURU_MP||'—')}</b></div>`}
    ${isAdmin()?`<div><label class="l">&nbsp;</label><button class="btn" onclick="autoTP()">↺ Guna purata semua bidang</button> <button class="btn" onclick="aiUlSemua(this)">✨ AI ulasan semua</button></div>
    <div><label class="l" for="aiHad">Maks. patah perkataan</label><input class="f" id="aiHad" type="number" min="10" max="80" step="5" value="${hadAI()}" style="width:110px" onchange="setHadAI(this.value)" title="Bilangan maksimum patah perkataan untuk setiap ulasan AI (10–80)"></div>`:''}</div></div>
   ${mp?`<div class="card"><div class="tw"><table class="t" id="tbK"><thead><tr><th>Bil</th><th style="min-width:220px">Nama Murid</th>${cs.map((c,i)=>`<th title="${esc(c)}" style="min-width:80px">${esc(c)}</th>`).join('')}<th style="background:var(--gold)">TP KESELURUHAN</th><th style="min-width:280px">Ulasan Guru MP (dipapar sebagai Penyataan laporan)</th></tr></thead><tbody>
@@ -1870,6 +1870,26 @@ V.markah = () => {
   </tbody></table></div><div class="hint" style="margin-top:12px">💡 <b>TP keseluruhan dikira sendiri</b> sebagai purata bidang (dibundarkan). Anda masih boleh pilih TP lain — ia akan ditanda <b>MANUAL</b>. Tekan <b>↺</b> untuk kembali kepada purata.</div></div>`:'<div class="card empty">Tiada mata pelajaran.</div>'}`;
   bindTP();
 };
+
+/* ---- Nama guru MP boleh diubah terus di Rekod Prestasi (ikut kelas) ----
+   Disimpan melalui api saveMP yang sama seperti dialog Mata Pelajaran:
+   backend simpan nama ini dalam 00_KELAS.GURU_MP (JSON ikut KOD_MP),
+   jadi hanya kelas ini berubah — kelas lain yang mengajar MP sama tidak terusik.
+   Semua paparan baca mp.NAMA_GURU_MP daripada data kelas semasa, jadi
+   Rekod Prestasi, senarai Mata Pelajaran dan Laporan (SM) ikut berubah. */
+async function saveGuruMp(btn){
+  const inp=$('#mpGuruNama'); if(!inp) return;
+  const mp=subjects(true).find(m=>m.KOD_MP===S.mpSel);
+  if(!mp) return toast('Tiada mata pelajaran dipilih',true);
+  if(!S.kelas) return toast('Tiada kelas dibuka — pilih kelas dahulu',true);
+  const nama=inp.value.trim().toUpperCase().replace(/\s+/g,' ');
+  if(!nama) return toast('Nama guru mata pelajaran wajib diisi',true);
+  if(nama===(mp.NAMA_GURU_MP||'').trim().toUpperCase()) return toast('Nama guru tidak berubah');
+  // Kosongkan draf edit nama guru peringkat murid dalam Laporan (SM) supaya nama baharu terus dipakai
+  Object.keys(S.subEdit||{}).forEach(k=>{ if(k.endsWith('|'+mp.KOD_MP+'|guru')) delete S.subEdit[k]; });
+  run(btn, async()=>{ await api('saveMP',{data:{KOD_MP:mp.KOD_MP, NAMA_GURU_MP:nama}}); },
+    'Guru '+mp.NAMA_MATA_PELAJARAN+' untuk kelas '+T().KELAS+' ditukar kepada '+nama+' ✓');
+}
 
 /* ---- TP keseluruhan: auto purata, masih boleh diubah manual ---- */
 const tpIsK = k => /^K\d+$/.test(String(k||''));
